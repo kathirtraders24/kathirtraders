@@ -1,0 +1,209 @@
+:host {
+  display: block;
+  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.a4-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm 15mm;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  color: #333;
+}
+
+.bill-header {
+  text-align: center;
+  border-bottom: 2px solid #333;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.company-name {
+  font-size: 24px;
+  margin: 0;
+  color: #1a237e;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.company-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.bill-title {
+  text-align: center;
+  margin: 12px 0;
+
+  h2 {
+    font-size: 16px;
+    margin: 0;
+    padding: 6px 0;
+    border: 1px solid #999;
+    display: inline-block;
+    padding: 4px 24px;
+    letter-spacing: 2px;
+  }
+}
+
+.bill-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 24px;
+
+  p {
+    margin: 2px 0;
+    font-size: 12px;
+  }
+}
+
+.meta-left {
+  flex: 1;
+}
+
+.meta-right {
+  text-align: right;
+}
+
+.customer-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+
+  th,
+  td {
+    border: 1px solid #999;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  th {
+    background: #e8eaf6;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+}
+
+.col-sno {
+  width: 30px;
+}
+
+.col-product {
+  min-width: 150px;
+}
+
+.col-hsn {
+  width: 60px;
+}
+
+.col-qty {
+  width: 50px;
+}
+
+.col-rate,
+.col-cgst,
+.col-sgst,
+.col-total {
+  width: 80px;
+}
+
+.col-gst {
+  width: 50px;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.subtotal-row td {
+  border-top: 2px solid #666;
+}
+
+.grand-total-row td {
+  border-top: 2px solid #333;
+  font-size: 13px;
+  background: #e8eaf6;
+}
+
+.bill-notes {
+  margin: 16px 0;
+  padding: 8px;
+  border: 1px dashed #ccc;
+  font-size: 11px;
+
+  p {
+    margin: 2px 0;
+  }
+}
+
+.bill-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 12px;
+  border-top: 1px solid #ccc;
+
+  p {
+    margin: 2px 0;
+    font-size: 11px;
+  }
+}
+
+.footer-right {
+  text-align: right;
+}
+
+// Print styles
+@media print {
+  .preview-actions {
+    display: none !important;
+  }
+
+  .a4-sheet {
+    box-shadow: none;
+    margin: 0;
+    padding: 10mm;
+    width: 100%;
+    min-height: auto;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}

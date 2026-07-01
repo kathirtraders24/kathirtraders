@@ -1,0 +1,111 @@
+<div class="preview-actions">
+  <button mat-stroked-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon> Back to List
+  </button>
+  <button mat-flat-button color="primary" (click)="print()">
+    <mat-icon>print</mat-icon> Print
+  </button>
+</div>
+
+@if (estimation(); as est) {
+  <div class="a4-sheet">
+    <div class="bill-header">
+      <h1 class="company-name">Kathir Traders</h1>
+      <p class="company-subtitle">Plumbing &amp; Electrical Accessories</p>
+    </div>
+
+    <div class="bill-title">
+      <h2>ESTIMATION BILL</h2>
+    </div>
+
+    <div class="bill-meta">
+      <div class="meta-left">
+        <p><strong>Bill To:</strong></p>
+        <p class="customer-name">{{ est.customerName }}</p>
+        <p>{{ est.customerAddress }}</p>
+        <p>Phone: {{ est.customerPhone }}</p>
+        @if (est.customerGstin) {
+          <p>GSTIN: {{ est.customerGstin }}</p>
+        }
+      </div>
+      <div class="meta-right">
+        <p><strong>Estimation #:</strong> {{ est.estimationNumber }}</p>
+        <p><strong>Date:</strong> {{ est.date | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Valid Until:</strong> {{ est.validUntil | date:'dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+
+    <table class="bill-table">
+      <thead>
+        <tr>
+          <th class="col-sno">#</th>
+          <th class="col-product">Product / Accessory</th>
+          <th class="col-hsn">HSN</th>
+          <th class="col-qty">Qty</th>
+          <th class="col-rate">Rate</th>
+          <th class="col-gst">GST %</th>
+          <th class="col-cgst">CGST</th>
+          <th class="col-sgst">SGST</th>
+          <th class="col-total">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of est.lines; track $index; let i = $index) {
+          <tr>
+            <td class="center">{{ i + 1 }}</td>
+            <td>{{ line.productName }}</td>
+            <td class="center">{{ line.hsnCode }}</td>
+            <td class="right">{{ line.quantity }}</td>
+            <td class="right">{{ line.unitRate | paise }}</td>
+            <td class="center">{{ line.gstRate }}%</td>
+            <td class="right">{{ line.cgst | paise }}</td>
+            <td class="right">{{ line.sgst | paise }}</td>
+            <td class="right">{{ line.lineTotal | paise }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="subtotal-row">
+          <td colspan="8" class="right"><strong>Sub-Total</strong></td>
+          <td class="right">{{ est.subTotal | paise }}</td>
+        </tr>
+        <tr>
+          <td colspan="8" class="right">CGST</td>
+          <td class="right">{{ est.totalCgst | paise }}</td>
+        </tr>
+        <tr>
+          <td colspan="8" class="right">SGST</td>
+          <td class="right">{{ est.totalSgst | paise }}</td>
+        </tr>
+        @if (est.totalIgst) {
+          <tr>
+            <td colspan="8" class="right">IGST</td>
+            <td class="right">{{ est.totalIgst | paise }}</td>
+          </tr>
+        }
+        <tr class="grand-total-row">
+          <td colspan="8" class="right"><strong>Grand Total</strong></td>
+          <td class="right"><strong>{{ est.grandTotal | paise }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    @if (est.notes) {
+      <div class="bill-notes">
+        <p><strong>Notes / Terms &amp; Conditions:</strong></p>
+        <p>{{ est.notes }}</p>
+      </div>
+    }
+
+    <div class="bill-footer">
+      <div class="footer-left">
+        <p>This is a computer-generated estimation.</p>
+      </div>
+      <div class="footer-right">
+        <p>For <strong>Kathir Traders</strong></p>
+        <br>
+        <p>Authorized Signatory</p>
+      </div>
+    </div>
+  </div>
+}

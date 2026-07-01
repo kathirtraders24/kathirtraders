@@ -1,0 +1,19 @@
+<h2 class="page-title">Reports</h2>
+<div class="reports-grid">
+  @for (report of reports; track report.title) {
+    <mat-card class="report-card" appearance="outlined">
+      <mat-card-header>
+        <div class="report-icon-wrap" [style.background]="report.color + '18'">
+          <mat-icon [style.color]="report.color">{{ report.icon }}</mat-icon>
+        </div>
+        <mat-card-title class="report-title">{{ report.title }}</mat-card-title>
+        <mat-card-subtitle>{{ report.description }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <button mat-flat-button color="primary">
+          <mat-icon>download</mat-icon> Generate
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>

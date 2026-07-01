@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.table-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.estimation-table {
+  width: 100%;
+}
+
+.cell-number {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.cell-name {
+  font-weight: 500;
+}
+
+.cell-amount {
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.data-row {
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.status-draft {
+  background-color: #fff9c4 !important;
+  color: #f57f17;
+}
+
+.status-sent {
+  background-color: #bbdefb !important;
+  color: #1565c0;
+}
+
+.status-accepted {
+  background-color: #c8e6c9 !important;
+  color: #2e7d32;
+}
+
+.status-rejected {
+  background-color: #ffcdd2 !important;
+  color: #c62828;
+}
+
+.status-expired {
+  background-color: #e0e0e0 !important;
+  color: #555;
+}

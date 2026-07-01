@@ -1,0 +1,55 @@
+<div class="header-row">
+  <h2>Purchase Orders</h2>
+  <button mat-flat-button color="primary" (click)="createPO()">
+    <mat-icon>add</mat-icon> New Purchase Order
+  </button>
+</div>
+
+@if (loading$ | async) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+<table mat-table [dataSource]="(purchases$ | async) || []" class="po-table">
+  <ng-container matColumnDef="poNumber">
+    <th mat-header-cell *matHeaderCellDef>PO #</th>
+    <td mat-cell *matCellDef="let po">{{ po.poNumber }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef>Date</th>
+    <td mat-cell *matCellDef="let po">{{ po.date | date:'dd/MM/yyyy' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="supplierName">
+    <th mat-header-cell *matHeaderCellDef>Supplier</th>
+    <td mat-cell *matCellDef="let po">{{ po.supplierName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="totalAmount">
+    <th mat-header-cell *matHeaderCellDef>Amount</th>
+    <td mat-cell *matCellDef="let po">{{ po.totalAmount | paise }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let po">
+      <mat-chip-set>
+        <mat-chip [class]="'status-' + po.status">{{ po.status }}</mat-chip>
+      </mat-chip-set>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let po">
+      @if (po.status === 'ordered') {
+        <button mat-icon-button color="primary" (click)="markReceived(po.id)">
+          <mat-icon>done_all</mat-icon>
+        </button>
+      }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

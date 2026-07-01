@@ -1,0 +1,89 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>New Sales Invoice</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>Customer Name</mat-label>
+          <input matInput formControlName="customerName">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Customer ID</mat-label>
+          <input matInput formControlName="customerId">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Date</mat-label>
+          <input matInput type="date" formControlName="date">
+        </mat-form-field>
+      </div>
+
+      <h3>Line Items</h3>
+      @for (line of lineItems.controls; track $index; let i = $index) {
+        <div class="line-row" [formGroupName]="'lines'">
+          <div [formGroupName]="i" class="line-fields">
+            <mat-form-field appearance="outline" class="line-field">
+              <mat-label>Product</mat-label>
+              <input matInput formControlName="productName">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="line-sm">
+              <mat-label>HSN</mat-label>
+              <input matInput formControlName="hsnCode">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="line-sm">
+              <mat-label>Qty</mat-label>
+              <input matInput type="number" formControlName="quantity">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="line-sm">
+              <mat-label>Rate (₹)</mat-label>
+              <input matInput type="number" formControlName="unitRate">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="line-sm">
+              <mat-label>GST %</mat-label>
+              <input matInput type="number" formControlName="gstRate">
+            </mat-form-field>
+            <button mat-icon-button color="warn" type="button" (click)="removeLine(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+      <button mat-stroked-button type="button" (click)="addLine()">
+        <mat-icon>add</mat-icon> Add Line
+      </button>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>Payment Mode</mat-label>
+          <mat-select formControlName="paymentMode">
+            <mat-option value="cash">Cash</mat-option>
+            <mat-option value="upi">UPI</mat-option>
+            <mat-option value="cheque">Cheque</mat-option>
+            <mat-option value="neft">NEFT</mat-option>
+            <mat-option value="credit">Credit</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="total-section">
+        <p>Sub-Total: {{ subTotal() | paise }}</p>
+        <p>CGST: {{ totalCgst() | paise }}</p>
+        <p>SGST: {{ totalSgst() | paise }}</p>
+        <p class="grand-total">Grand Total: {{ grandTotal() | paise }}</p>
+      </div>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancel()">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
+          Save as Draft
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

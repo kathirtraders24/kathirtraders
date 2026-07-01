@@ -1,0 +1,17 @@
+<h2 class="page-title">Dashboard</h2>
+<div class="dashboard-grid">
+  @for (card of summaryCards; track card.title) {
+    <mat-card class="summary-card" [routerLink]="card.route" appearance="outlined">
+      <mat-card-header>
+        <div class="card-icon-wrap" [style.background]="card.color + '18'">
+          <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+        </div>
+        <mat-card-title class="card-title">{{ card.title }}</mat-card-title>
+        <mat-card-subtitle>{{ card.subtitle }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <span class="card-value">{{ card.value }}</span>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

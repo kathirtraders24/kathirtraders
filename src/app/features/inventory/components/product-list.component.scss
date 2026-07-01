@@ -1,0 +1,24 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-field {
+  width: 100%;
+  margin: 16px 0;
+}
+
+.product-table {
+  width: 100%;
+}
+
+.plumbing {
+  background-color: #e3f2fd !important;
+  color: #1565c0 !important;
+}
+
+.electrical {
+  background-color: #fff3e0 !important;
+  color: #e65100 !important;
+}

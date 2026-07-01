@@ -1,0 +1,45 @@
+.form-card {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.line-fields {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.line-field {
+  flex: 2;
+}
+
+.line-sm {
+  flex: 1;
+}
+
+.divider {
+  margin: 16px 0;
+}
+
+.total-section {
+  text-align: right;
+  padding: 16px 0;
+}
+
+.grand-total {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

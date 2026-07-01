@@ -1,0 +1,228 @@
+<h2 class="page-title">Orders</h2>
+
+<!-- ===== Filters Card ===== -->
+<div class="filters-card">
+  <div class="filters-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search orders</mat-label>
+      <input matInput
+        placeholder="Customer name or mobile..."
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <button mat-stroked-button [matMenuTriggerFor]="statusMenu" class="filter-btn">
+      <mat-icon>filter_list</mat-icon>
+      Payment Status
+      @if (selectedStatuses().size > 0) {
+        <span class="filter-count">{{ selectedStatuses().size }}</span>
+      }
+    </button>
+    <mat-menu #statusMenu="matMenu">
+      @for (opt of statusOptions; track opt.value) {
+        <button mat-menu-item (click)="$event.stopPropagation(); toggleStatus(opt.value)">
+          <mat-icon>{{ isStatusSelected(opt.value) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          <span>{{ opt.label }}</span>
+        </button>
+      }
+    </mat-menu>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>From Date</mat-label>
+      <input matInput [matDatepicker]="fromPicker" [formControl]="dateFromCtrl"
+        (dateChange)="onDateFromChange()">
+      <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #fromPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>To Date</mat-label>
+      <input matInput [matDatepicker]="toPicker" [formControl]="dateToCtrl"
+        (dateChange)="onDateToChange()">
+      <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+      <mat-datepicker #toPicker></mat-datepicker>
+    </mat-form-field>
+
+    @if (activeFilterCount() > 0) {
+      <button mat-stroked-button color="warn" class="clear-btn" (click)="clearFilters()">
+        <mat-icon>clear</mat-icon> Clear Filters
+      </button>
+    }
+  </div>
+</div>
+
+<!-- ===== Results ===== -->
+@if (filteredOrders().length > 0) {
+  <div class="results-header">
+    <span class="results-count">{{ filteredOrders().length }} order{{ filteredOrders().length === 1 ? '' : 's' }} found</span>
+  </div>
+
+  <div class="table-card">
+    <table mat-table [dataSource]="filteredOrders()" class="orders-table">
+      <ng-container matColumnDef="sno">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let order; let i = index">{{ i + 1 }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="customerName">
+        <th mat-header-cell *matHeaderCellDef>Customer Name</th>
+        <td mat-cell *matCellDef="let order" class="cell-name">{{ order.customerName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="customerPhone">
+        <th mat-header-cell *matHeaderCellDef>Mobile Number</th>
+        <td mat-cell *matCellDef="let order" class="cell-phone">{{ order.customerPhone }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let order">{{ order.date }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="grandTotal">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let order" class="cell-amount">
+          {{ order.grandTotal / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="paymentStatus">
+        <th mat-header-cell *matHeaderCellDef>Payment Status</th>
+        <td mat-cell *matCellDef="let order">
+          <span class="status-badge" [class]="'status-' + order.paymentStatus">
+            {{ order.paymentStatus | uppercase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="paymentModes">
+        <th mat-header-cell *matHeaderCellDef>Payment Split</th>
+        <td mat-cell *matCellDef="let order" class="cell-modes">{{ getPaymentModes(order) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let order">
+          <button mat-icon-button color="primary" (click)="printOrder(order, $event)" matTooltip="Print Order">
+            <mat-icon>print</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="orderColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: orderColumns"
+          class="order-row"
+          [class.selected-row]="selectedOrder()?.id === row.id"
+          (click)="selectOrder(row)">
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== Order Details Panel ===== -->
+  @if (selectedOrder(); as order) {
+    <div class="order-details">
+      <div class="details-header">
+        <h4>
+          <mat-icon class="details-icon">receipt_long</mat-icon>
+          Order Details
+        </h4>
+        <button mat-icon-button (click)="selectOrder(order)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="details-meta">
+        <div class="meta-item">
+          <span class="meta-label">Customer</span>
+          <span class="meta-value">{{ order.customerName }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Mobile</span>
+          <span class="meta-value">{{ order.customerPhone }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">{{ order.date }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Status</span>
+          <span class="status-badge" [class]="'status-' + order.paymentStatus">
+            {{ order.paymentStatus | uppercase }}
+          </span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <h5>Line Items</h5>
+      <div class="detail-table-wrap">
+        <table class="detail-line-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product</th>
+              <th>HSN</th>
+              <th class="right">Qty</th>
+              <th class="right">Unit Price</th>
+              <th class="right">Discount</th>
+              <th class="right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of order.lines; track line.productId; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ line.name }}</td>
+                <td>{{ line.hsnCode }}</td>
+                <td class="right">{{ line.quantity }}</td>
+                <td class="right">{{ line.unitPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</td>
+                <td class="right">{{ line.discount / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</td>
+                <td class="right">{{ line.totalPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="6" class="right"><strong>Grand Total</strong></td>
+              <td class="right"><strong>{{ order.grandTotal / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      @if (order.payments.length > 0) {
+        <mat-divider></mat-divider>
+        <h5>Payment Breakdown</h5>
+        <div class="payment-chips">
+          @for (p of order.payments; track p.mode) {
+            <div class="payment-chip">
+              <mat-icon class="chip-icon">payment</mat-icon>
+              <span class="chip-mode">{{ p.mode | uppercase }}</span>
+              <span class="chip-amount">{{ p.amount / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="details-actions">
+        <button mat-flat-button color="primary" (click)="printOrder(order, $event)">
+          <mat-icon>print</mat-icon> Print Order
+        </button>
+      </div>
+    </div>
+  }
+} @else {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">receipt_long</mat-icon>
+    @if (activeFilterCount() > 0) {
+      <p class="empty-title">No orders match the current filters</p>
+      <p class="empty-sub">Try adjusting or clearing your filters.</p>
+    } @else {
+      <p class="empty-title">No orders yet</p>
+      <p class="empty-sub">Create orders from the Purchase Order page.</p>
+    }
+  </div>
+}

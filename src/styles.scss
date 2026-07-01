@@ -1,0 +1,146 @@
+/* Global styles for Kathir Traders */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+$primary: #1a237e;
+$primary-light: #e8eaf6;
+$accent: #5c6bc0;
+$text-primary: #212121;
+$text-secondary: #666;
+$text-muted: #999;
+$border: #e0e0e0;
+$bg-surface: #fff;
+$bg-subtle: #fafafa;
+$radius: 8px;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: 'Inter', Roboto, 'Helvetica Neue', sans-serif;
+  color: $text-primary;
+  background: #f4f6f8;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ===== Consistent page container mixin =====
+// Apply via :host in each feature component
+// :host { @extend %page-host; }
+%page-host {
+  display: block;
+  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ===== Consistent page title =====
+.page-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: $primary;
+  margin: 0 0 24px;
+  letter-spacing: 0.2px;
+}
+
+// ===== Consistent card surface =====
+.surface-card {
+  background: $bg-surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow-sm;
+}
+
+// ===== Consistent empty state =====
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  color: $text-muted;
+
+  .empty-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: $text-secondary;
+    margin: 0 0 8px;
+  }
+
+  .empty-sub {
+    font-size: 14px;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+// ===== Consistent status badges =====
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.status-paid   { background: #c8e6c9; color: #2e7d32; }
+.status-partial { background: #fff9c4; color: #f57f17; }
+.status-unpaid  { background: #ffcdd2; color: #c62828; }
+
+// ===== Mat table global refinement =====
+.mat-mdc-table {
+  .mat-mdc-header-cell {
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: $text-secondary;
+    background: #f5f5f5;
+  }
+
+  .mat-mdc-row:hover {
+    background: #f9f9f9;
+  }
+}
+
+// ===== Snackbar classes =====
+.snack-success {
+  --mdc-snackbar-container-color: #43a047;
+  --mdc-snackbar-supporting-text-color: white;
+}
+.snack-error {
+  --mdc-snackbar-container-color: #e53935;
+  --mdc-snackbar-supporting-text-color: white;
+}
+
+// ===== Print styles =====
+@media print {
+  app-layout-shell .mat-sidenav,
+  app-layout-shell .mat-toolbar,
+  mat-sidenav,
+  .shell-toolbar,
+  .mat-drawer,
+  .nav-tabs {
+    display: none !important;
+  }
+
+  .mat-sidenav-content,
+  .mat-drawer-content {
+    margin-left: 0 !important;
+  }
+
+  .shell-content {
+    padding: 0 !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}

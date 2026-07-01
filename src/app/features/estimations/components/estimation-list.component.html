@@ -1,0 +1,66 @@
+<h2 class="page-title">Estimation Bills</h2>
+
+<div class="header-actions">
+  <button mat-flat-button color="primary" (click)="createEstimation()">
+    <mat-icon>add</mat-icon> New Estimation
+  </button>
+</div>
+
+@if (loading$ | async) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+<div class="table-card">
+  <table mat-table [dataSource]="(estimations$ | async) || []" class="estimation-table">
+    <ng-container matColumnDef="estimationNumber">
+      <th mat-header-cell *matHeaderCellDef>Estimation #</th>
+      <td mat-cell *matCellDef="let est" class="cell-number">{{ est.estimationNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Date</th>
+      <td mat-cell *matCellDef="let est">{{ est.date | date: 'dd/MM/yyyy' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="customerName">
+      <th mat-header-cell *matHeaderCellDef>Customer</th>
+      <td mat-cell *matCellDef="let est" class="cell-name">{{ est.customerName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="grandTotal">
+      <th mat-header-cell *matHeaderCellDef>Total</th>
+      <td mat-cell *matCellDef="let est" class="cell-amount">{{ est.grandTotal | paise }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="validUntil">
+      <th mat-header-cell *matHeaderCellDef>Valid Until</th>
+      <td mat-cell *matCellDef="let est">
+        {{ est.validUntil | date: 'dd/MM/yyyy' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let est">
+        <mat-chip-set>
+          <mat-chip [class]="'status-' + est.status">{{ est.status }}</mat-chip>
+        </mat-chip-set>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let est">
+        <button mat-icon-button color="primary" (click)="viewEstimation(est)" matTooltip="View">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteEstimation(est)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"></tr>
+  </table>
+</div>

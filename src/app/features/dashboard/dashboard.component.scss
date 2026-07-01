@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.summary-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border-radius: 10px;
+  padding: 8px 0;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.card-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  margin-right: 12px;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a237e;
+  letter-spacing: -0.5px;
+}

@@ -1,0 +1,53 @@
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav
+    #sidenav
+    mode="side"
+    [opened]="sidenavOpen()"
+    class="shell-sidenav"
+  >
+    <div class="brand">
+      <mat-icon class="brand-icon">store</mat-icon>
+      <span class="brand-name">Kathir Traders</span>
+    </div>
+    <mat-nav-list>
+      @for (item of navItems; track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="shell-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>Kathir Traders</span>
+      <span class="toolbar-spacer"></span>
+      <span class="toolbar-subtitle">Plumbing & Electrical Accessories</span>
+    </mat-toolbar>
+    <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="nav-tabs" backgroundColor="primary">
+      @for (item of navItems; track item.route) {
+        <a mat-tab-link
+          [routerLink]="item.route"
+          routerLinkActive
+          #rla="routerLinkActive"
+          [active]="rla.isActive">
+          <mat-icon class="tab-icon">{{ item.icon }}</mat-icon>
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+    <mat-tab-nav-panel #tabPanel>
+      <main class="shell-content">
+        <router-outlet />
+      </main>
+    </mat-tab-nav-panel>
+  </mat-sidenav-content>
+</mat-sidenav-container>

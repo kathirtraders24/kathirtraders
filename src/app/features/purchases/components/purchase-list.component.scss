@@ -1,0 +1,25 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.po-table {
+  width: 100%;
+}
+
+.status-draft {
+  background-color: #fff9c4 !important;
+}
+
+.status-ordered {
+  background-color: #bbdefb !important;
+}
+
+.status-received {
+  background-color: #c8e6c9 !important;
+}
+
+.status-cancelled {
+  background-color: #ffcdd2 !important;
+}

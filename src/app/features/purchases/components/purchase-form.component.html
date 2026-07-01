@@ -1,0 +1,153 @@
+<h2 class="page-title">Purchase Order</h2>
+
+  <!-- Product search -->
+  <div class="search-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search Product</mat-label>
+      <input
+        matInput
+        [formControl]="searchCtrl"
+        [matAutocomplete]="auto"
+        placeholder="Type product name to search..."
+      >
+      <mat-icon matSuffix>search</mat-icon>
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="onProductSelected($event.option.value)"
+      >
+        @for (product of productSuggestions$ | async; track product.id) {
+          <mat-option [value]="product">
+            {{ product.name }} — {{ product.sku }} ({{ product.category }})
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+
+  <!-- Line items table -->
+  @if (lines().length > 0) {
+    <table mat-table [dataSource]="lines()" class="items-table">
+      <ng-container matColumnDef="sno">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let line; let i = index">{{ i + 1 }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Product Name</th>
+        <td mat-cell *matCellDef="let line">{{ line.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="hsnCode">
+        <th mat-header-cell *matHeaderCellDef>HSN Code</th>
+        <td mat-cell *matCellDef="let line">{{ line.hsnCode }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef>Qty</th>
+        <td mat-cell *matCellDef="let line">
+          <input
+            type="number"
+            class="inline-input qty-input"
+            [value]="line.quantity"
+            min="1"
+            (change)="updateQuantity(line.productId, $any($event.target).valueAsNumber)"
+          >
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="unitPrice">
+        <th mat-header-cell *matHeaderCellDef>Per Unit Price</th>
+        <td mat-cell *matCellDef="let line">
+          {{ line.unitPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="discount">
+        <th mat-header-cell *matHeaderCellDef>Discount</th>
+        <td mat-cell *matCellDef="let line">
+          <button mat-stroked-button class="discount-btn" (click)="openDiscountDialog(line)">
+            {{ getDiscountLabel(line) }}
+            <mat-icon class="edit-icon">edit</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalPrice">
+        <th mat-header-cell *matHeaderCellDef>Total Price</th>
+        <td mat-cell *matCellDef="let line">
+          {{ line.totalPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let line">
+          <button mat-icon-button color="warn" (click)="removeLine(line.productId)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <div class="totals-section">
+      <div class="total-line subtotal-line">
+        <span>Subtotal</span>
+        <span>{{ subtotal() / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</span>
+      </div>
+      <div class="total-line discount-line">
+        <span>
+          Overall Discount
+          <button mat-stroked-button class="discount-btn overall-disc-btn" (click)="openOverallDiscountDialog()">
+            {{ getOverallDiscountLabel() }}
+            <mat-icon class="edit-icon">edit</mat-icon>
+          </button>
+        </span>
+        <span class="discount-amount">
+          @if (overallDiscount() > 0) {
+            &minus; {{ overallDiscount() / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+          } @else {
+            —
+          }
+        </span>
+      </div>
+      @if (showGST) {
+      <div class="total-line gst-line">
+        <span>
+          GST
+          <mat-form-field appearance="outline" class="gst-select">
+            <mat-select [value]="gstPercent()" (selectionChange)="gstPercent.set($event.value)">
+              @for (opt of gstOptions; track opt) {
+                <mat-option [value]="opt">{{ opt === 0 ? 'No GST' : opt + '%' }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </span>
+        <span class="gst-amount">
+          @if (gstPercent() > 0) {
+            {{ grandTotal() / 100 - grandTotal() / (1 + gstPercent() / 100) / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+          } @else {
+            —
+          }
+        </span>
+      </div>
+      }
+      <div class="total-line grand-total-line">
+        <span>Grand Total</span>
+        <span>{{ grandTotal() / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</span>
+      </div>
+      <div class="confirm-action">
+        <button mat-flat-button color="primary" class="confirm-btn" (click)="confirmOrder()">
+          <mat-icon>check_circle</mat-icon> Confirm Order
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">shopping_cart</mat-icon>
+      <p class="empty-title">No products added yet</p>
+      <p class="empty-sub">Search and select products above to create a purchase order.</p>
+    </div>
+  }

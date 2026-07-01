@@ -1,0 +1,55 @@
+<h2 class="page-title">Customers</h2>
+
+<div class="header-actions">
+  <button mat-flat-button color="primary" (click)="addCustomer()">
+    <mat-icon>add</mat-icon> Add Customer
+  </button>
+</div>
+
+@if (loading$ | async) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+<div class="table-card">
+  <table mat-table [dataSource]="(customers$ | async) || []" class="customer-table">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let c" class="cell-name">{{ c.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="phone">
+      <th mat-header-cell *matHeaderCellDef>Phone</th>
+      <td mat-cell *matCellDef="let c" class="cell-phone">{{ c.phone }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="gstin">
+      <th mat-header-cell *matHeaderCellDef>GSTIN</th>
+      <td mat-cell *matCellDef="let c">{{ c.gstin || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="creditLimit">
+      <th mat-header-cell *matHeaderCellDef>Credit Limit</th>
+      <td mat-cell *matCellDef="let c" class="cell-amount">{{ c.creditLimit | paise }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="outstandingBalance">
+      <th mat-header-cell *matHeaderCellDef>Outstanding</th>
+      <td mat-cell *matCellDef="let c" class="cell-amount">{{ c.outstandingBalance | paise }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let c">
+        <button mat-icon-button color="primary" (click)="editCustomer(c)" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteCustomer(c)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="data-row"></tr>
+  </table>
+</div>
