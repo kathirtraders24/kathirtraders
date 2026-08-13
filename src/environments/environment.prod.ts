@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
   localJson: true,
-  apiUrl: '/api',
+  apiUrl: 'http://localhost/ktbackend/public/api',
   showGST: true,
 };
