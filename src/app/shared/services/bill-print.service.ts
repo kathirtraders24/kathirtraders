@@ -105,12 +105,12 @@ export class BillPrintService {
         <div class="shop-name">KATHIR TRADERS</div>
         <div class="shop-tagline">Plumbing &amp; Electrical Accessories</div>
         <div class="shop-address">
-          64, Chinna Veethi, Koranattukaruppur, Kumbakonam, Thanjavur, Tamil Nadu - 612501
+          3/1164, Chinna Veethi, Koranattukaruppur, Kumbakonam, Thanjavur, Tamil Nadu - 612501
         </div>
       </div>
       <div class="header-right">
-        <div class="phone-row"><strong>Ph:</strong> +91 99657 7163</div>
-        <div class="phone-row"><strong>Ph:</strong> +91 95857 7826</div>
+        <div class="phone-row"><strong>Ph:</strong> +91 99657 71638</div>
+        <div class="phone-row"><strong>Ph:</strong> +91 95857 78260</div>
         <div class="phone-row"><strong>Email:</strong> kathirtraders24@gmail.com</div>
       </div>
     </div>

@@ -66,12 +66,17 @@ export class CustomerFormComponent implements OnInit {
       name: raw.name!,
       phone: raw.phone!,
       gstin: raw.gstin || undefined,
-      stateCode: raw.stateCode!,
+      stateCode: raw.stateCode || '33',
       email: raw.email || undefined,
       address: raw.address!,
       creditLimit: Math.round((raw.creditLimitRupees ?? 0) * 100),
       outstandingBalance: 0,
     };
+
+    if (!customer.stateCode || !customer.creditLimit) {
+      this.notification.error('State code and credit limit are required.');
+      return;
+    }
 
     if (this.isEditMode && this.customerId) {
       this.store.dispatch(CustomerActions.updateCustomer({ id: this.customerId, changes: customer }));
