@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Estimation } from '../../../shared/models';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class EstimationService {
   private http = inject(HttpClient);
-  private readonly baseUrl = '/api/estimations';
+  private readonly baseUrl = environment.apiUrl + '/estimations';
 
   getAll(): Observable<Estimation[]> {
     return this.http.get<Estimation[]>(this.baseUrl);

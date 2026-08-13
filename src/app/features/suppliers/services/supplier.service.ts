@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Supplier } from '../../../shared/models';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SupplierService {
   private http = inject(HttpClient);
-  private readonly baseUrl = '/api/suppliers';
+  private readonly baseUrl = environment.apiUrl + '/suppliers';
 
   getAll(): Observable<Supplier[]> {
     return this.http.get<Supplier[]>(this.baseUrl);

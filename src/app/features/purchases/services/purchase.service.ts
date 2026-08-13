@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PurchaseOrder } from '../../../shared/models';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PurchaseService {
   private http = inject(HttpClient);
-  private readonly baseUrl = '/api/purchases';
+  private readonly baseUrl = environment.apiUrl + '/purchases';
 
   getAll(): Observable<PurchaseOrder[]> {
     return this.http.get<PurchaseOrder[]>(this.baseUrl);

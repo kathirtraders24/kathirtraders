@@ -140,12 +140,16 @@ export class BillPrintService {
         ${rows}
         ${blankRows}
       </tbody>
+      <tfoot>
+        <tr class="qty-total-row">
+          <td colspan="3" class="right"><strong>Total</strong></td>
+          <td class="right"><strong>${totalQty}</strong></td>
+          <td></td>
+          ${showDiscountColumn ? '<td></td>' : ''}
+          <td></td>
+        </tr>
+      </tfoot>
     </table>
-
-    <div class="table-footer-summary">
-      <span style="width: 60%; text-align: left;"><strong>Total</strong></span>
-      <span style="width: 40%; text-align: right;"><strong>${totalQty}</strong></span>
-    </div>
 
     <div class="total-section">
       <div class="total-box">
@@ -436,16 +440,17 @@ export class BillPrintService {
     .bill-table .empty-row td { height: 26px; padding: 7px 8px; }
     .bill-table .product { font-weight: 500; }
 
-    .table-footer-summary {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 6px 0 10px;
-      padding: 6px 8px;
+    .bill-table tfoot .qty-total-row td {
       background: #f8f9ff;
-      border-top: 1px solid #bbb;
+      border-top: 2px solid #bbb;
       border-bottom: 1px solid #bbb;
+      border-left: 1px solid #bbb;
+      padding: 5px 6px;
       font-size: 11px;
+    }
+
+    .bill-table tfoot .qty-total-row td:last-child {
+      border-right: 1px solid #bbb;
     }
 
     .center { text-align: center; }

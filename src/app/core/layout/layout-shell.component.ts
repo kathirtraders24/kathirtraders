@@ -38,7 +38,7 @@ export class LayoutShellComponent {
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
     { label: 'Inventory', icon: 'inventory_2', route: '/inventory' },
     { label: 'Sales', icon: 'point_of_sale', route: '/sales' },
-    { label: 'Purchases', icon: 'shopping_cart', route: '/purchases' },
+    { label: 'Invoice', icon: 'shopping_cart', route: '/purchases' },
     { label: 'Orders', icon: 'receipt_long', route: '/purchases/orders' },
     { label: 'Customers', icon: 'people', route: '/customers' },
     { label: 'Suppliers', icon: 'local_shipping', route: '/suppliers' },

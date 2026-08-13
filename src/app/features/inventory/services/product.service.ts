@@ -7,7 +7,7 @@ import { environment } from '../../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private http = inject(HttpClient);
-  private readonly baseUrl = '/api/products';
+  private readonly baseUrl = environment.apiUrl + '/products';
   private readonly jsonUrl = 'data/products.json';
 
   private cachedProducts: Product[] | null = null;

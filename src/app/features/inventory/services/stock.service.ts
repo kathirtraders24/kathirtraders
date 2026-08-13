@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StockEntry } from '../../../shared/models';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class StockService {
   private http = inject(HttpClient);
-  private readonly baseUrl = '/api/stock';
+  private readonly baseUrl = environment.apiUrl + '/stock';
 
   getAll(): Observable<StockEntry[]> {
     return this.http.get<StockEntry[]>(this.baseUrl);
