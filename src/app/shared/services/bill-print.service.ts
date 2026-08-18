@@ -66,9 +66,9 @@ export class BillPrintService {
     const blankRows = Array(emptyRows)
       .fill(null)
       .map(
-        (_, i) => `
+        () => `
         <tr class="empty-row">
-          <td class="center">${config.lines.length + i + 1}</td>
+          <td class="center">&nbsp;</td>
           <td></td><td></td><td></td><td></td>${showDiscountColumn ? '<td></td>' : ''}<td></td>
         </tr>`
       )
@@ -77,7 +77,8 @@ export class BillPrintService {
     const metaHtml = (config.metaFields ?? [])
       .map((f) => `<span><strong>${this.escapeHtml(f.label)}:</strong> ${this.escapeHtml(f.value)}</span>`)
       .join('');
-    const dateMetaHtml = `<span><strong>Date:</strong> ${this.escapeHtml(config.date)}</span>`;
+    const formattedDate = this.formatBillDate(config.date);
+    const dateMetaHtml = `<span><strong>Date:</strong> ${this.escapeHtml(formattedDate)}</span>`;
 
     const customerHtml = (config.customerName || config.customerPhone)
       ? `<div class="customer-row">
@@ -106,6 +107,9 @@ export class BillPrintService {
         <div class="shop-tagline">Plumbing &amp; Electrical Accessories</div>
         <div class="shop-address">
           3/1164, Chinna Veethi, Koranattukaruppur, Kumbakonam, Thanjavur, Tamil Nadu - 612501
+        </div>
+        <div class="shop-address">
+          GSTIN/UIN: 33DQDPS3701L1ZS
         </div>
       </div>
       <div class="header-right">
@@ -236,6 +240,20 @@ export class BillPrintService {
     }).format(rupees);
   }
 
+  private formatBillDate(dateInput: string): string {
+    const date = new Date(dateInput);
+    if (Number.isNaN(date.getTime())) {
+      return dateInput;
+    }
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
+
   numberToWords(paise: number): string {
     const rupees = Math.floor(paise / 100);
     if (rupees === 0) return 'Zero Rupees';
@@ -361,8 +379,8 @@ export class BillPrintService {
 
     /* ── Title strip ── */
     .title-strip {
-      background: #1a237e;
-      color: #fff;
+      background: transparent;
+      color: #000;
       text-align: center;
       padding: 7px 0;
       font-size: 16px;
@@ -370,6 +388,8 @@ export class BillPrintService {
       letter-spacing: 4px;
       text-transform: uppercase;
       margin: 10px 0;
+      border: 1px solid #000000;
+      border-bottom: 2px solid #000000;
     }
 
     /* ── Meta row ── */
@@ -421,13 +441,15 @@ export class BillPrintService {
     }
 
     .bill-table thead th {
-      background: #1a237e;
-      color: #fff;
-      font-weight: 600;
+      background: transparent;
+      color: #222;
+      font-weight: 700;
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       padding: 8px 6px;
+      border: 1px solid #000000;
+      border-bottom: 2px solid #000000;
     }
 
     .bill-table tbody tr {
@@ -441,7 +463,7 @@ export class BillPrintService {
     .bill-table .product { font-weight: 500; }
 
     .bill-table tfoot .qty-total-row td {
-      background: #f8f9ff;
+      background: transparent;
       border-top: 2px solid #bbb;
       border-bottom: 1px solid #bbb;
       border-left: 1px solid #bbb;
@@ -465,7 +487,7 @@ export class BillPrintService {
 
     .total-box {
       width: 260px;
-      border: 2px solid #1a237e;
+      border: 1px solid #000000;
       border-top: none;
     }
 
@@ -479,12 +501,14 @@ export class BillPrintService {
     }
 
     .total-row.grand {
-      background: #1a237e;
-      color: #fff;
+      background: transparent;
+      color: #000;
       font-size: 14px;
       font-weight: 700;
       padding: 8px 10px;
       border-top: none;
+      border: 1px solid #000000;
+      border-bottom: 2px solid #000000;
     }
 
     .total-row.paid {

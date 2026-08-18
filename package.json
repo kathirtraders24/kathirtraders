@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0 --port 4200 --public-host localhost --base-href /kathir-traders/",
+    "start": "ng serve",
     "build": "ng build --base-href /kathir-traders/",
     "build:prod": "ng build --configuration production --base-href /kathir-traders/",
     "watch": "ng build --watch --configuration development --base-href /kathir-traders/",
