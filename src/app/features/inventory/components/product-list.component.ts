@@ -34,8 +34,30 @@ export class ProductListComponent implements OnInit {
 
   products$ = this.store.select(selectAllProducts);
   loading$ = this.store.select(selectProductsLoading);
+  allProducts: Product[] = [];
   searchTerm = '';
   displayedColumns = ['sku', 'name', 'category', 'hsnCode', 'gstRate', 'unitPrice', 'actions'];
+
+  filteredProducts(): Product[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const products = this.allProducts;
+
+    if (!term) {
+      return products;
+    }
+
+    return products.filter((product) => {
+      const haystack = [product.name, product.sku, product.category, product.subCategory]
+        .join(' ')
+        .toLowerCase();
+
+      return haystack.includes(term);
+    });
+  }
+
+  constructor() {
+    this.products$.subscribe((products) => this.allProducts = products ?? []);
+  }
 
   ngOnInit(): void {
     this.store.dispatch(ProductActions.loadProducts());
