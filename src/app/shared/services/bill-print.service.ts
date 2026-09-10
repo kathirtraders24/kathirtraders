@@ -41,17 +41,58 @@ export class BillPrintService {
     printWindow.document.title = `${config.title} - Kathir Traders`;
   }
 
-  private buildHtml(config: BillConfig): string {
-    const gstPercent = config.gstPercent ?? 0;
-    const hasGst = gstPercent > 0;
-    const showDiscountColumn = config.lines.some((line) => line.discount > 0);
-    const totalQty = config.lines.reduce((sum, line) => sum + line.quantity, 0);
+  // Line rows per printed page. The header/meta repeats on every page, so this
+  // is the number of item rows that comfortably fit under it on an A4 sheet.
+  private static readonly ROWS_PER_PAGE = 18;
 
-    const rows = config.lines
+  private buildHtml(config: BillConfig): string {
+    const showDiscountColumn = config.lines.some((line) => line.discount > 0);
+
+    // Split the line items into pages.
+    const perPage = BillPrintService.ROWS_PER_PAGE;
+    const pageCount = Math.max(1, Math.ceil(config.lines.length / perPage));
+    const pages: string[] = [];
+
+    for (let p = 0; p < pageCount; p++) {
+      const start = p * perPage;
+      const pageLines = config.lines.slice(start, start + perPage);
+      const isLast = p === pageCount - 1;
+      pages.push(
+        this.buildPageHtml(config, pageLines, start, showDiscountColumn, p + 1, pageCount, isLast)
+      );
+    }
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${this.escapeHtml(config.title)} - Kathir Traders</title>
+  <style>${this.getBillCss()}</style>
+</head>
+<body>
+  ${pages.join('\n')}
+  <script>
+    window.onload = function() { window.print(); window.onafterprint = function() { window.close(); }; };
+  </script>
+</body>
+</html>`;
+  }
+
+  /** One printed A4 page: repeated header + meta + a slice of the item table. */
+  private buildPageHtml(
+    config: BillConfig,
+    pageLines: BillLineItem[],
+    startIndex: number,
+    showDiscountColumn: boolean,
+    pageNo: number,
+    pageCount: number,
+    isLast: boolean,
+  ): string {
+    const rows = pageLines
       .map(
         (line, i) => `
         <tr>
-          <td class="center">${i + 1}</td>
+          <td class="center">${startIndex + i + 1}</td>
           <td class="product">${this.escapeHtml(line.name)}</td>
           <td class="center">${this.escapeHtml(line.hsnCode)}</td>
           <td class="right">${line.quantity}</td>
@@ -62,18 +103,65 @@ export class BillPrintService {
       )
       .join('');
 
-    const emptyRows = Math.max(0, 15 - config.lines.length);
-    const blankRows = Array(emptyRows)
-      .fill(null)
-      .map(
-        () => `
+    // Only pad the last page with blank rows so the table reads as complete.
+    const blankRows = isLast
+      ? Array(Math.max(0, BillPrintService.ROWS_PER_PAGE - pageLines.length))
+          .fill(null)
+          .map(
+            () => `
         <tr class="empty-row">
           <td class="center">&nbsp;</td>
           <td></td><td></td><td></td><td></td>${showDiscountColumn ? '<td></td>' : ''}<td></td>
         </tr>`
-      )
-      .join('');
+          )
+          .join('')
+      : '';
 
+    const totalQty = config.lines.reduce((sum, line) => sum + line.quantity, 0);
+    const tfoot = isLast
+      ? `
+      <tfoot>
+        <tr class="qty-total-row">
+          <td colspan="3" class="right"><strong>Total</strong></td>
+          <td class="right"><strong>${totalQty}</strong></td>
+          <td></td>
+          ${showDiscountColumn ? '<td></td>' : ''}
+          <td></td>
+        </tr>
+      </tfoot>`
+      : '';
+
+    return `<div class="page">
+    ${this.buildHeaderHtml(config)}
+
+    <table class="bill-table">
+      <thead>
+        <tr>
+          <th style="width:30px">S.No</th>
+          <th style="min-width:160px">Product Name</th>
+          <th style="width:65px">HSN</th>
+          <th style="width:45px">Qty</th>
+          <th style="width:90px">Unit Price</th>
+          ${showDiscountColumn ? '<th style="width:80px">Discount</th>' : ''}
+          <th style="width:95px">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+        ${blankRows}
+      </tbody>
+      ${tfoot}
+    </table>
+
+    ${isLast ? this.buildTotalsHtml(config) : ''}
+
+    <div class="page-number">Page ${pageNo}/${pageCount}</div>
+    <div class="bottom-bar"></div>
+  </div>`;
+  }
+
+  /** Shop header + title strip + meta/customer rows, repeated on every page. */
+  private buildHeaderHtml(config: BillConfig): string {
     const metaHtml = (config.metaFields ?? [])
       .map((f) => `<span><strong>${this.escapeHtml(f.label)}:</strong> ${this.escapeHtml(f.value)}</span>`)
       .join('');
@@ -87,20 +175,7 @@ export class BillPrintService {
         </div>`
       : '';
 
-    const termsHtml = config.terms
-      .map((t) => `<li>${this.escapeHtml(t)}</li>`)
-      .join('');
-
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>${this.escapeHtml(config.title)} - Kathir Traders</title>
-  <style>${this.getBillCss()}</style>
-</head>
-<body>
-  <div class="page">
-    <div class="header">
+    return `<div class="header">
       <img src="assets/logo.png" class="header-logo" onerror="this.style.display='none'">
       <div class="header-info">
         <div class="shop-name">KATHIR TRADERS</div>
@@ -126,36 +201,15 @@ export class BillPrintService {
       ${dateMetaHtml}
     </div>
 
-    ${customerHtml}
+    ${customerHtml}`;
+  }
 
-    <table class="bill-table">
-      <thead>
-        <tr>
-          <th style="width:30px">S.No</th>
-          <th style="min-width:160px">Product Name</th>
-          <th style="width:65px">HSN</th>
-          <th style="width:45px">Qty</th>
-          <th style="width:90px">Unit Price</th>
-          ${showDiscountColumn ? '<th style="width:80px">Discount</th>' : ''}
-          <th style="width:95px">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-        ${blankRows}
-      </tbody>
-      <tfoot>
-        <tr class="qty-total-row">
-          <td colspan="3" class="right"><strong>Total</strong></td>
-          <td class="right"><strong>${totalQty}</strong></td>
-          <td></td>
-          ${showDiscountColumn ? '<td></td>' : ''}
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
+  /** Totals box + amount-in-words + footer, rendered only on the last page. */
+  private buildTotalsHtml(config: BillConfig): string {
+    const gstPercent = config.gstPercent ?? 0;
+    const hasGst = gstPercent > 0;
 
-    <div class="total-section">
+    return `<div class="total-section">
       <div class="total-box">
         ${config.overallDiscount != null && config.overallDiscount > 0 ? `
         ${config.subtotal != null ? `
@@ -207,7 +261,6 @@ export class BillPrintService {
       <strong>Amount in words:</strong> ${this.numberToWords(config.grandTotal)} Only
     </div>
 
-
     <div class="footer">
       <div class="footer-left">
         <p>Thank you for your business!</p>
@@ -218,16 +271,7 @@ export class BillPrintService {
         <p class="for-label">For Kathir Traders</p>
         <p>Authorized Signatory</p>
       </div>
-    </div>
-
-    <div class="bottom-bar"></div>
-  </div>
-
-  <script>
-    window.onload = function() { window.print(); window.onafterprint = function() { window.close(); }; };
-  </script>
-</body>
-</html>`;
+    </div>`;
   }
 
   formatCurrency(paise: number): string {
@@ -323,8 +367,22 @@ export class BillPrintService {
       width: 190mm;
       min-height: 270mm;
       margin: 0 auto;
-      padding: 0;
+      padding: 0 0 18px;
       position: relative;
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    /* ── Page number ── */
+    .page-number {
+      text-align: center;
+      font-size: 10px;
+      color: #777;
+      margin-top: 10px;
+      padding-bottom: 6px;
     }
 
     /* ── Header ── */

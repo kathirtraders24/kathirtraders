@@ -40,6 +40,9 @@ export interface Estimation {
   totalSgst: PaiseAmount;
   totalIgst: PaiseAmount;
   grandTotal: PaiseAmount;
+  overallDiscountType?: 'flat' | 'percent';
+  overallDiscountValue?: number;   // percent number or rupees number
+  overallDiscount?: PaiseAmount;   // paise
   notes?: string;
   status: EstimationStatus;
 }

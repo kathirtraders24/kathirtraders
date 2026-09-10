@@ -4,3 +4,4 @@ export type { ConfirmDialogData } from './components/confirm-dialog/confirm-dial
 export { BillPrintService } from './services/bill-print.service';
 export type { BillLineItem, BillConfig } from './services/bill-print.service';
 export * from './models';
+export { toSnakeCase, toCamelCase } from './utils/case-convert';

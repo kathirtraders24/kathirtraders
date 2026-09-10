@@ -33,6 +33,9 @@ export const invoiceReducer = createReducer(
   on(InvoiceActions.createInvoiceSuccess, (state, { invoice }) =>
     invoiceAdapter.addOne(invoice, state)
   ),
+  on(InvoiceActions.updateInvoiceSuccess, (state, { invoice }) =>
+    invoiceAdapter.upsertOne(invoice, state)
+  ),
   on(InvoiceActions.confirmInvoiceSuccess, (state, { invoice }) =>
     invoiceAdapter.upsertOne(invoice, state)
   ),
