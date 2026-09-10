@@ -104,6 +104,7 @@ export interface OrderLineItem {
   name: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;
   unitPrice: PaiseAmount;
   discount: PaiseAmount;
   totalPrice: PaiseAmount;
@@ -111,6 +112,7 @@ export interface OrderLineItem {
 
 export interface Order {
   id: string;
+  orderNumber?: string;
   customerName: string;
   customerPhone: string;
   date: string;

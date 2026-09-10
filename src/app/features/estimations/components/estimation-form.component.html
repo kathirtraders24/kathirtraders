@@ -241,29 +241,31 @@
           <span>Grand Total</span>
           <span>{{ grandTotal() / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</span>
         </div>
-        <div class="print-action">
-          <button mat-stroked-button (click)="view.set('products')">
+        <div class="action-bar">
+          <button mat-stroked-button class="action-btn" (click)="view.set('products')">
             <mat-icon>arrow_back</mat-icon> Add More
           </button>
-          <span class="print-action-spacer"></span>
-          <button mat-stroked-button color="accent" (click)="createInvoice()"
+
+          <span class="action-spacer"></span>
+
+          <button mat-stroked-button color="primary" class="action-btn" (click)="createInvoice()"
                   [disabled]="lines().length === 0">
-            <mat-icon>receipt</mat-icon> Create Invoice
+            <mat-icon>receipt_long</mat-icon> Create Invoice
           </button>
-          <button mat-stroked-button color="primary" (click)="saveNew()"
+          <button mat-stroked-button color="primary" class="action-btn" (click)="printEstimation()"
+                  [disabled]="lines().length === 0">
+            <mat-icon>print</mat-icon> Print
+          </button>
+          <button mat-flat-button color="primary" class="action-btn" (click)="saveNew()"
                   [disabled]="saving() || lines().length === 0">
             <mat-icon>save</mat-icon> Save as New
           </button>
           @if (canUpdate) {
-            <button mat-flat-button color="primary" (click)="saveUpdate()"
+            <button mat-flat-button color="primary" class="action-btn" (click)="saveUpdate()"
                     [disabled]="saving() || lines().length === 0">
               <mat-icon>sync</mat-icon> Update
             </button>
           }
-          <button mat-flat-button (click)="printEstimation()"
-                  [disabled]="lines().length === 0">
-            <mat-icon>print</mat-icon> Print
-          </button>
         </div>
       </div>
     } @else {

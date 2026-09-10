@@ -296,6 +296,9 @@ export class EstimationFormComponent {
     this.billPrintService.print({
       title: 'Estimation',
       date: this.today,
+      metaFields: this.estimationNumber()
+        ? [{ label: 'Estimation No', value: this.estimationNumber() }]
+        : undefined,
       customerName: this.customerNameCtrl.value.trim() || undefined,
       customerPhone: this.customerPhoneCtrl.value.trim() || undefined,
       lines: this.lines().map((l) => ({

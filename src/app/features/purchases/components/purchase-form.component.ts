@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -25,12 +25,22 @@ export interface PurchaseLine {
   name: string;
   hsnCode: string;
   quantity: number;
+  unit: string;             // e.g. Nos, Mtr, Kg
   unitPrice: number;        // paise
   discountType: DiscountType;
   discountValue: number;    // percent (e.g. 10) or rupees (e.g. 50)
   discount: number;         // paise (computed)
   totalPrice: number;       // paise
 }
+
+interface PurchaseDraft {
+  lines: PurchaseLine[];
+  overallDiscountType: DiscountType;
+  overallDiscountValue: number;
+  gstPercent: number;
+}
+
+const DRAFT_KEY = 'draft:purchase';
 
 @Component({
   selector: 'app-purchase-form',
@@ -59,6 +69,8 @@ export class PurchaseFormComponent {
   );
 
   lines = signal<PurchaseLine[]>([]);
+  // Pending quantity chosen in the search dropdown before the product is added.
+  pendingQty = signal<Record<string, number>>({});
   overallDiscountType = signal<DiscountType>('flat');
   overallDiscountValue = signal<number>(0);
   gstPercent = signal(0);
@@ -75,32 +87,67 @@ export class PurchaseFormComponent {
   grandTotal = computed(() => Math.max(0, this.subtotal() - this.overallDiscount()));
   displayedColumns = ['sno', 'name', 'hsnCode', 'quantity', 'unitPrice', 'discount', 'totalPrice', 'actions'];
 
-  onProductSelected(product: Product): void {
+  constructor() {
+    this.restoreDraft();
+    // Persist on any change; cleared once an order is confirmed.
+    effect(() => this.persistDraft());
+  }
+
+  getPendingQty(productId: string): number {
+    return this.pendingQty()[productId] ?? 1;
+  }
+
+  incPending(productId: string): void {
+    this.pendingQty.update((m) => ({ ...m, [productId]: this.getPendingQty(productId) + 1 }));
+  }
+
+  decPending(productId: string): void {
+    this.pendingQty.update((m) => ({ ...m, [productId]: Math.max(1, this.getPendingQty(productId) - 1) }));
+  }
+
+  private resetPending(productId: string): void {
+    this.pendingQty.update((m) => {
+      const copy = { ...m };
+      delete copy[productId];
+      return copy;
+    });
+  }
+
+  /** Add the product with its chosen quantity; newest first (LIFO). */
+  addProduct(product: Product): void {
+    const qty = this.getPendingQty(product.id);
     const existing = this.lines().find((l) => l.productId === product.id);
+
     if (existing) {
-      this.updateQuantity(existing.productId, existing.quantity + 1);
-      this.searchCtrl.setValue('');
-      return;
+      const newQty = existing.quantity + qty;
+      const lineTotal = existing.unitPrice * newQty;
+      const discount = this.calcDiscount(existing.discountType, existing.discountValue, lineTotal);
+      const updated = { ...existing, quantity: newQty, discount, totalPrice: lineTotal - discount };
+      const rest = this.lines().filter((l) => l.productId !== product.id);
+      this.lines.set([updated, ...rest]);
+    } else {
+      const line: PurchaseLine = {
+        productId: product.id,
+        name: product.name,
+        hsnCode: product.hsnCode,
+        quantity: qty,
+        unit: product.unit || 'Nos',
+        unitPrice: product.unitPrice,
+        discountType: 'flat',
+        discountValue: 0,
+        discount: 0,
+        totalPrice: product.unitPrice * qty,
+      };
+      this.lines.set([line, ...this.lines()]);
     }
 
-    const line: PurchaseLine = {
-      productId: product.id,
-      name: product.name,
-      hsnCode: product.hsnCode,
-      quantity: 1,
-      unitPrice: product.unitPrice,
-      discountType: 'flat',
-      discountValue: 0,
-      discount: 0,
-      totalPrice: product.unitPrice,
-    };
-
-    this.lines.update((prev) => [...prev, line]);
+    this.resetPending(product.id);
     this.searchCtrl.setValue('');
   }
 
-  displayProduct(product: Product | string): string {
-    return typeof product === 'string' ? product : product?.name ?? '';
+  /** Keeps the search input clear after an autocomplete option is chosen. */
+  displayProduct(): string {
+    return '';
   }
 
   updateQuantity(productId: string, qty: number): void {
@@ -188,6 +235,39 @@ export class PurchaseFormComponent {
     return Math.round(value * 100);
   }
 
+  // ── Draft persistence (localStorage) ─────────────────────────────
+  private restoreDraft(): void {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw) as Partial<PurchaseDraft>;
+      this.lines.set((d.lines ?? []).map((l) => ({ ...l, unit: l.unit || 'Nos' })));
+      this.overallDiscountType.set(d.overallDiscountType ?? 'flat');
+      this.overallDiscountValue.set(d.overallDiscountValue ?? 0);
+      this.gstPercent.set(d.gstPercent ?? 0);
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+  }
+
+  private persistDraft(): void {
+    const draft: PurchaseDraft = {
+      lines: this.lines(),
+      overallDiscountType: this.overallDiscountType(),
+      overallDiscountValue: this.overallDiscountValue(),
+      gstPercent: this.gstPercent(),
+    };
+    if (draft.lines.length === 0) {
+      localStorage.removeItem(DRAFT_KEY);
+      return;
+    }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  }
+
+  private clearDraft(): void {
+    localStorage.removeItem(DRAFT_KEY);
+  }
+
   removeLine(productId: string): void {
     this.lines.update((prev) => prev.filter((l) => l.productId !== productId));
   }
@@ -211,6 +291,7 @@ export class PurchaseFormComponent {
           name: l.name,
           hsnCode: l.hsnCode,
           quantity: l.quantity,
+          unit: l.unit,
           unitPrice: l.unitPrice,
           discount: l.discount,
           totalPrice: l.totalPrice,
@@ -231,6 +312,7 @@ export class PurchaseFormComponent {
           this.overallDiscountType.set('flat');
           this.overallDiscountValue.set(0);
           this.gstPercent.set(0);
+          this.clearDraft();
           this.notification.success('Order confirmed successfully!');
         },
         error: () => {
@@ -252,6 +334,7 @@ export class PurchaseFormComponent {
         name: l.name,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit,
         unitPrice: l.unitPrice,
         discount: l.discount,
         totalPrice: l.totalPrice,
@@ -265,6 +348,7 @@ export class PurchaseFormComponent {
         ? order.payments.reduce((sum, p) => sum + p.amount, 0)
         : undefined,
       metaFields: [
+        ...(order.orderNumber ? [{ label: 'Invoice No', value: order.orderNumber }] : []),
         { label: 'Customer', value: order.customerName },
         { label: 'Mobile', value: order.customerPhone },
         { label: 'Payment Status', value: order.paymentStatus.toUpperCase() },

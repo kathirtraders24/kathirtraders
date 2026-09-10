@@ -172,10 +172,6 @@
   width: 260px;
 }
 
-.print-action-spacer {
-  flex: 1 1 auto;
-}
-
 // ---------- Customer row ----------
 .customer-row {
   display: flex;
@@ -332,11 +328,47 @@
   margin-top: 4px;
 }
 
-.print-action {
+.action-bar {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.action-spacer {
+  flex: 1 1 auto;
+}
+
+.action-btn {
+  min-width: 132px;
+  height: 40px;
+  border-radius: 8px;
+  font-weight: 600;
+
+  mat-icon {
+    margin-right: 4px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+  }
+}
+
+@media (max-width: 640px) {
+  .action-bar {
+    justify-content: stretch;
+  }
+
+  .action-spacer {
+    display: none;
+  }
+
+  .action-btn {
+    flex: 1 1 45%;
+  }
 }
 
 // ---------- Empty state ----------

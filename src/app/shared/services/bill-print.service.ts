@@ -494,6 +494,12 @@ export class BillPrintService {
       vertical-align: middle;
     }
 
+    /* Make item rows print dark and bold so they're clearly visible */
+    .bill-table tbody td {
+      color: #000;
+      font-weight: 600;
+    }
+
     .bill-table thead th:last-child,
     .bill-table tbody td:last-child {
       border-right: 1px solid #bbb;
@@ -519,7 +525,7 @@ export class BillPrintService {
     .bill-table tbody tr:nth-child(even) { background: transparent; }
     .bill-table tbody tr:hover { background: transparent; }
     .bill-table .empty-row td { height: 26px; padding: 7px 8px; }
-    .bill-table .product { font-weight: 500; }
+    .bill-table .product { font-weight: 700; color: #000; }
 
     .bill-table tfoot .qty-total-row td {
       background: transparent;

@@ -60,6 +60,7 @@ export class OrderService {
         name: line.name,
         hsn_code: line.hsnCode,
         quantity: line.quantity,
+        unit: line.unit,
         unit_price: line.unitPrice,
         discount: line.discount,
         total_price: line.totalPrice,
@@ -76,6 +77,7 @@ export class OrderService {
   private fromApiOrder(order: any): Order {
     return {
       id: order.id,
+      orderNumber: order.order_number ?? order.orderNumber,
       customerName: order.customer_name ?? order.customerName,
       customerPhone: order.customer_phone ?? order.customerPhone,
       date: order.date,
@@ -84,6 +86,7 @@ export class OrderService {
         name: line.name,
         hsnCode: line.hsn_code ?? line.hsnCode,
         quantity: line.quantity,
+        unit: line.unit ?? 'Nos',
         unitPrice: line.unit_price ?? line.unitPrice,
         discount: line.discount ?? 0,
         totalPrice: line.total_price ?? line.totalPrice,
