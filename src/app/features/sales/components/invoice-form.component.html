@@ -68,38 +68,50 @@
     <div class="search-row">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search Product</mat-label>
-        <input matInput [formControl]="searchCtrl" placeholder="Type at least 2 characters...">
+        <input
+          matInput
+          [formControl]="searchCtrl"
+          [matAutocomplete]="auto"
+          placeholder="Type product name to search..."
+        >
         <mat-icon matSuffix>search</mat-icon>
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProduct"
+                          (optionSelected)="addProduct($event.option.value)">
+          @for (product of (productSuggestions$ | async) ?? []; track product.id) {
+            <mat-option [value]="product" class="product-option">
+              <div class="opt-row">
+                <div class="opt-info">
+                  <span class="opt-name">{{ product.name }}</span>
+                  <span class="opt-meta">
+                    {{ product.sku }} · {{ product.category }} ·
+                    {{ product.unitPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }} · GST {{ product.gstRate }}%
+                  </span>
+                </div>
+                <div class="opt-stepper" (click)="$event.stopPropagation()">
+                  <button mat-icon-button type="button"
+                          (click)="decPending(product.id); $event.stopPropagation()"
+                          [disabled]="getPendingQty(product.id) <= 1">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <span class="qty-val">{{ getPendingQty(product.id) }}</span>
+                  <button mat-icon-button type="button"
+                          (click)="incPending(product.id); $event.stopPropagation()">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+                <button mat-flat-button color="primary" class="opt-tick"
+                        (click)="addProduct(product); $event.stopPropagation()">
+                  <mat-icon>check</mat-icon>
+                </button>
+              </div>
+            </mat-option>
+          }
+        </mat-autocomplete>
       </mat-form-field>
-    </div>
 
-    <div class="results-list">
-      @for (product of (productSuggestions$ | async) ?? []; track product.id) {
-        <div class="result-row">
-          <div class="result-info">
-            <span class="result-name">{{ product.name }}</span>
-            <span class="result-meta">
-              {{ product.sku }} · {{ product.category }} ·
-              {{ product.unitPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }} · GST {{ product.gstRate }}%
-            </span>
-          </div>
-          <div class="qty-stepper">
-            <button mat-icon-button type="button" (click)="decPending(product.id)"
-                    [disabled]="getPendingQty(product.id) <= 1">
-              <mat-icon>remove</mat-icon>
-            </button>
-            <span class="qty-val">{{ getPendingQty(product.id) }}</span>
-            <button mat-icon-button type="button" (click)="incPending(product.id)">
-              <mat-icon>add</mat-icon>
-            </button>
-          </div>
-          <button mat-flat-button color="primary" class="tick-btn" (click)="addProduct(product)">
-            <mat-icon>check</mat-icon>
-          </button>
-        </div>
-      } @empty {
-        <p class="empty-hint">Type a product name to search and add items.</p>
-      }
+      <button mat-stroked-button color="primary" class="add-product-btn" (click)="addNewProduct()">
+        <mat-icon>add_box</mat-icon> Add Product
+      </button>
     </div>
 
     @if (lines().length > 0) {

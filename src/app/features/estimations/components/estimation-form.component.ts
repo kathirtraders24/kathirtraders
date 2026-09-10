@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,6 +31,7 @@ export interface EstimationLine {
   name: string;
   hsnCode: string;
   quantity: number;
+  unit: string;          // e.g. Nos, Mtr, Kg
   unitPrice: number;     // paise
   discountType: DiscountType;
   discountValue: number; // percent number or rupees number
@@ -54,7 +56,7 @@ const DRAFT_KEY = 'draft:estimation';
   imports: [
     ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatButtonToggleModule, MatIconModule,
-    MatTableModule, MatSelectModule, AsyncPipe, CurrencyPipe,
+    MatAutocompleteModule, MatTableModule, MatSelectModule, AsyncPipe, CurrencyPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './estimation-form.component.html',
@@ -156,6 +158,7 @@ export class EstimationFormComponent {
         name: product.name,
         hsnCode: product.hsnCode,
         quantity: qty,
+        unit: product.unit || 'Nos',
         unitPrice: product.unitPrice,
         discountType: 'flat',
         discountValue: 0,
@@ -168,6 +171,16 @@ export class EstimationFormComponent {
     this.resetPending(product.id);
     this.recalcGrandTotal();
     this.searchCtrl.setValue('');
+  }
+
+  /** Keeps the search input clear after an autocomplete option is chosen. */
+  displayProduct(): string {
+    return '';
+  }
+
+  /** Open the full product-creation page (all fields). The draft is preserved. */
+  addNewProduct(): void {
+    this.router.navigate(['/inventory', 'new']);
   }
 
   // ── Line editing (bill view) ─────────────────────────────────────
@@ -289,6 +302,7 @@ export class EstimationFormComponent {
         name: l.name,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit,
         unitPrice: l.unitPrice,
         discount: l.discount,
         totalPrice: l.totalPrice,
@@ -375,6 +389,7 @@ export class EstimationFormComponent {
         name: l.name,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit,
         unitPrice: l.unitPrice,
         gstRate,
         discount: l.discount,
@@ -394,6 +409,7 @@ export class EstimationFormComponent {
         name: l.productName,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit || 'Nos',
         unitPrice: l.unitRate,
         discountType: 'flat',
         discountValue: Math.round(l.discount / 100),
@@ -430,6 +446,7 @@ export class EstimationFormComponent {
         productName: l.name,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit,
         unitRate: l.unitPrice,
         discount: l.discount,
         gstRate,
@@ -487,7 +504,7 @@ export class EstimationFormComponent {
     if (!raw) return;
     try {
       const d = JSON.parse(raw) as Partial<EstimationDraft>;
-      this.lines.set(d.lines ?? []);
+      this.lines.set((d.lines ?? []).map((l) => ({ ...l, unit: l.unit || 'Nos' })));
       this.overallDiscountType.set(d.overallDiscountType ?? 'flat');
       this.overallDiscountValue.set(d.overallDiscountValue ?? 0);
       this.gstPercent.set(d.gstPercent ?? 0);

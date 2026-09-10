@@ -87,6 +87,8 @@
 .search-row {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -95,55 +97,67 @@
   max-width: 500px;
 }
 
-.results-list {
-  max-width: 700px;
-  margin: 0 auto 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.add-product-btn {
+  margin-top: 6px; // align with the outlined input
+  white-space: nowrap;
 }
 
-.result-row {
+// Autocomplete options grow to fit the stepper + tick on one row.
+::ng-deep .product-option.mat-mdc-option {
+  height: auto;
+  min-height: 52px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+// Material clips option text by default; let the whole row (stepper + tick) show.
+::ng-deep .product-option .mdc-list-item__primary-text {
+  width: 100%;
+  overflow: visible;
+  white-space: normal;
+}
+
+.opt-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
+  width: 100%;
 }
 
-.result-info {
+.opt-info {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
+  line-height: 1.3;
 
-  .result-name {
+  .opt-name {
     font-weight: 600;
     color: #222;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .result-meta {
+  .opt-meta {
     font-size: 12px;
     color: #777;
   }
 }
 
-.qty-stepper {
+.opt-stepper {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 
   .qty-val {
-    min-width: 28px;
+    min-width: 26px;
     text-align: center;
     font-weight: 600;
   }
 }
 
-.tick-btn {
-  min-width: 48px;
+.opt-tick {
+  min-width: 44px;
 }
 
 // ---------- Added list (LIFO) ----------

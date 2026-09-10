@@ -15,6 +15,7 @@ export interface EstimationLineItem {
   productName: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;
   unitRate: PaiseAmount;
   discount: PaiseAmount;
   gstRate: number;
@@ -128,6 +129,7 @@ export interface InvoiceLineItem {
   productName: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;
   unitRate: PaiseAmount;
   discount: PaiseAmount;
   gstRate: number;

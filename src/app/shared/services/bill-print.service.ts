@@ -4,6 +4,7 @@ export interface BillLineItem {
   name: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;        // e.g. Nos, Mtr, Kg
   unitPrice: number;   // paise
   discount: number;     // paise
   totalPrice: number;   // paise
@@ -95,7 +96,7 @@ export class BillPrintService {
           <td class="center">${startIndex + i + 1}</td>
           <td class="product">${this.escapeHtml(line.name)}</td>
           <td class="center">${this.escapeHtml(line.hsnCode)}</td>
-          <td class="right">${line.quantity}</td>
+          <td class="right">${line.quantity}${line.unit ? ' ' + this.escapeHtml(line.unit) : ''}</td>
           <td class="right">${this.formatCurrency(line.unitPrice)}</td>
           ${showDiscountColumn ? `<td class="right">${line.discount > 0 ? this.formatCurrency(line.discount) : ''}</td>` : ''}
           <td class="right">${this.formatCurrency(line.totalPrice)}</td>

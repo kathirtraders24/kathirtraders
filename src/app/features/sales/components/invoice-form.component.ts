@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AsyncPipe, CurrencyPipe, UpperCasePipe } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
@@ -26,6 +27,7 @@ interface InvoiceFormLine {
   name: string;
   hsnCode: string;
   quantity: number;
+  unit: string;       // e.g. Nos, Mtr, Kg
   unitPrice: number;  // paise
   gstRate: number;    // percent
   discount: number;   // paise
@@ -48,7 +50,7 @@ const DRAFT_KEY = 'draft:invoice';
   imports: [
     ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatButtonModule, MatButtonToggleModule, MatIconModule,
-    AsyncPipe, CurrencyPipe, UpperCasePipe,
+    MatAutocompleteModule, AsyncPipe, CurrencyPipe, UpperCasePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoice-form.component.html',
@@ -113,6 +115,8 @@ export class InvoiceFormComponent {
         this.saving.set(false);
         this.clearDraft();
         this.notification.success(`Invoice ${invoice.invoiceNumber} saved`);
+        // Auto-print the placed invoice, then return to the list.
+        this.printSavedInvoice(invoice);
         this.router.navigate(['/sales']);
       });
   }
@@ -154,6 +158,7 @@ export class InvoiceFormComponent {
           name: product.name,
           hsnCode: product.hsnCode,
           quantity: qty,
+          unit: product.unit || 'Nos',
           unitPrice: product.unitPrice,
           gstRate: product.gstRate ?? 18,
           discount: 0,
@@ -165,6 +170,16 @@ export class InvoiceFormComponent {
     this.resetPending(product.id);
     this.recalculate();
     this.searchCtrl.setValue('');
+  }
+
+  /** Keeps the search input clear after an autocomplete option is chosen. */
+  displayProduct(): string {
+    return '';
+  }
+
+  /** Open the full product-creation page (all fields). The draft is preserved. */
+  addNewProduct(): void {
+    this.router.navigate(['/inventory', 'new']);
   }
 
   // ── Line editing (bill view) ─────────────────────────────────────
@@ -284,6 +299,7 @@ export class InvoiceFormComponent {
         name: l.name,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit,
         unitPrice: l.unitPrice,
         discount: l.discount,
         totalPrice: this.lineTotal(l),
@@ -301,6 +317,37 @@ export class InvoiceFormComponent {
     this.router.navigate(['/sales']);
   }
 
+  /** Print the invoice returned by the server after a successful save. */
+  private printSavedInvoice(inv: SalesInvoice): void {
+    const invLines = inv.lines ?? [];
+    // Show the CGST/SGST breakdown only when every line shares one GST rate.
+    const rates = Array.from(new Set(invLines.map((l) => l.gstRate)));
+    const uniformRate = rates.length === 1 ? rates[0] : 0;
+
+    this.billPrintService.print({
+      title: 'Tax Invoice',
+      date: inv.date,
+      customerName: inv.customerName || undefined,
+      metaFields: [{ label: 'Invoice No', value: inv.invoiceNumber }],
+      lines: invLines.map((l) => ({
+        name: l.productName,
+        hsnCode: l.hsnCode,
+        quantity: l.quantity,
+        unit: l.unit,
+        unitPrice: l.unitRate,
+        discount: l.discount,
+        totalPrice: l.lineTotal,
+      })),
+      grandTotal: inv.grandTotal,
+      gstPercent: uniformRate > 0 ? uniformRate : undefined,
+      terms: [
+        'Goods once sold will not be taken back or exchanged.',
+        'All disputes subject to Kumbakonam jurisdiction.',
+      ],
+      footerNote: 'Computer generated invoice',
+    });
+  }
+
   private buildPayload(): Omit<SalesInvoice, 'id' | 'invoiceNumber'> {
     const lines: InvoiceLineItem[] = this.lines().map((l) => {
       const taxable = Math.max(0, l.unitPrice * l.quantity - l.discount);
@@ -310,6 +357,7 @@ export class InvoiceFormComponent {
         productName: l.name,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
+        unit: l.unit,
         unitRate: l.unitPrice,
         discount: l.discount,
         gstRate: l.gstRate,
@@ -342,6 +390,7 @@ export class InvoiceFormComponent {
       name: l.productName,
       hsnCode: l.hsnCode,
       quantity: l.quantity,
+      unit: l.unit || 'Nos',
       unitPrice: l.unitRate,
       gstRate: l.gstRate,
       discount: l.discount,
@@ -364,7 +413,7 @@ export class InvoiceFormComponent {
     if (!raw) return;
     try {
       const d = JSON.parse(raw) as Partial<InvoiceDraft>;
-      this.lines.set(d.lines ?? []);
+      this.lines.set((d.lines ?? []).map((l) => ({ ...l, unit: l.unit || 'Nos' })));
       this.customerId.set(d.customerId ?? '');
       this.customerPhoneCtrl.setValue(d.customerPhone ?? '');
       this.customerNameCtrl.setValue(d.customerName ?? '');
