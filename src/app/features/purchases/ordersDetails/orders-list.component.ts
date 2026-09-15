@@ -10,9 +10,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CurrencyPipe, UpperCasePipe } from '@angular/common';
 import { Order, OrderPaymentStatus, BillPrintService } from '../../../shared';
 import { OrderService } from '../services/order.service';
+import { ShareService } from '../../../shared/services/share.service';
 
 @Component({
   selector: 'app-orders-list',
@@ -20,7 +22,7 @@ import { OrderService } from '../services/order.service';
   imports: [
     ReactiveFormsModule, MatTableModule, MatDividerModule, MatIconModule,
     MatButtonModule, MatFormFieldModule, MatInputModule, MatMenuModule,
-    MatDatepickerModule, MatNativeDateModule, MatBadgeModule,
+    MatDatepickerModule, MatNativeDateModule, MatBadgeModule, MatTooltipModule,
     CurrencyPipe, UpperCasePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +32,7 @@ import { OrderService } from '../services/order.service';
 export class OrdersListComponent {
   private billPrintService = inject(BillPrintService);
   private orderService = inject(OrderService);
+  private shareService = inject(ShareService);
 
   private allOrders = signal<Order[]>([]);
   selectedOrder = signal<Order | null>(null);
@@ -182,6 +185,20 @@ export class OrdersListComponent {
         'All disputes subject to Kumbakonam jurisdiction.',
       ],
       footerNote: 'Thank you for your business!',
+    });
+  }
+
+  shareOrder(order: Order, event: Event): void {
+    event.stopPropagation();
+    const paid = order.payments.reduce((sum, p) => sum + p.amount, 0);
+    this.shareService.whatsappDocument({
+      kind: 'Bill',
+      number: order.orderNumber ?? order.id.slice(0, 8),
+      date: order.date,
+      customerName: order.customerName,
+      customerPhone: order.customerPhone,
+      grandTotal: order.grandTotal,
+      balance: order.paymentStatus === 'paid' ? 0 : Math.max(order.grandTotal - paid, 0),
     });
   }
 

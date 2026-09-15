@@ -2,31 +2,52 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-$primary: #1a237e;
-$primary-light: #e8eaf6;
-$accent: #5c6bc0;
-$text-primary: #212121;
-$text-secondary: #666;
-$text-muted: #999;
-$border: #e0e0e0;
-$bg-surface: #fff;
-$bg-subtle: #fafafa;
-$radius: 8px;
-$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+// ===== Theme tokens (CSS custom properties) =====
+:root {
+  --kt-primary: #1a237e;
+  --kt-primary-light: #e8eaf6;
+  --kt-accent: #5c6bc0;
+  --kt-text-primary: #212121;
+  --kt-text-secondary: #666;
+  --kt-text-muted: #999;
+  --kt-border: #e0e0e0;
+  --kt-bg-surface: #fff;
+  --kt-bg-subtle: #fafafa;
+  --kt-bg-app: #f4f6f8;
+  --kt-table-head: #f5f5f5;
+  --kt-row-hover: #f9f9f9;
+  --kt-radius: 8px;
+  --kt-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --kt-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --kt-primary: #7986cb;
+  --kt-primary-light: #2a2f4a;
+  --kt-accent: #9fa8da;
+  --kt-text-primary: #e8eaed;
+  --kt-text-secondary: #b0b3b8;
+  --kt-text-muted: #8a8d91;
+  --kt-border: #3a3d42;
+  --kt-bg-surface: #1e1f24;
+  --kt-bg-subtle: #26272d;
+  --kt-bg-app: #16171b;
+  --kt-table-head: #26272d;
+  --kt-row-hover: #2a2b31;
+  --kt-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --kt-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
 
 html, body { height: 100%; }
 body {
   margin: 0;
   font-family: 'Inter', Roboto, 'Helvetica Neue', sans-serif;
-  color: $text-primary;
-  background: #f4f6f8;
+  color: var(--kt-text-primary);
+  background: var(--kt-bg-app);
   -webkit-font-smoothing: antialiased;
 }
 
 // ===== Consistent page container mixin =====
-// Apply via :host in each feature component
-// :host { @extend %page-host; }
 %page-host {
   display: block;
   padding: 24px 32px;
@@ -39,43 +60,44 @@ body {
   text-align: center;
   font-size: 22px;
   font-weight: 600;
-  color: $primary;
+  color: var(--kt-primary);
   margin: 0 0 24px;
   letter-spacing: 0.2px;
 }
 
 // ===== Consistent card surface =====
 .surface-card {
-  background: $bg-surface;
-  border: 1px solid $border;
-  border-radius: $radius;
-  box-shadow: $shadow-sm;
+  background: var(--kt-bg-surface);
+  border: 1px solid var(--kt-border);
+  border-radius: var(--kt-radius);
+  box-shadow: var(--kt-shadow-sm);
 }
 
 // ===== Consistent empty state =====
 .empty-state {
   text-align: center;
   padding: 64px 24px;
-  color: $text-muted;
+  color: var(--kt-text-muted);
 
   .empty-icon {
     font-size: 56px;
     width: 56px;
     height: 56px;
-    color: #ccc;
+    color: var(--kt-text-muted);
+    opacity: 0.6;
     margin-bottom: 16px;
   }
 
   .empty-title {
     font-size: 18px;
     font-weight: 500;
-    color: $text-secondary;
+    color: var(--kt-text-secondary);
     margin: 0 0 8px;
   }
 
   .empty-sub {
     font-size: 14px;
-    color: $text-muted;
+    color: var(--kt-text-muted);
     margin: 0;
   }
 }
@@ -94,6 +116,19 @@ body {
 .status-partial { background: #fff9c4; color: #f57f17; }
 .status-unpaid  { background: #ffcdd2; color: #c62828; }
 
+// ===== Loading skeleton =====
+.skeleton {
+  background: linear-gradient(90deg, var(--kt-bg-subtle) 25%, var(--kt-border) 37%, var(--kt-bg-subtle) 63%);
+  background-size: 400% 100%;
+  animation: kt-shimmer 1.4s ease infinite;
+  border-radius: 4px;
+}
+
+@keyframes kt-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
 // ===== Mat table global refinement =====
 .mat-mdc-table {
   .mat-mdc-header-cell {
@@ -101,12 +136,12 @@ body {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: $text-secondary;
-    background: #f5f5f5;
+    color: var(--kt-text-secondary);
+    background: var(--kt-table-head);
   }
 
   .mat-mdc-row:hover {
-    background: #f9f9f9;
+    background: var(--kt-row-hover);
   }
 }
 
@@ -118,6 +153,59 @@ body {
 .snack-error {
   --mdc-snackbar-container-color: #e53935;
   --mdc-snackbar-supporting-text-color: white;
+}
+.snack-warning {
+  --mdc-snackbar-container-color: #f9a825;
+  --mdc-snackbar-supporting-text-color: #212121;
+}
+
+// ===== Dark mode: Angular Material surface overrides =====
+// The app ships the light prebuilt "indigo-pink" theme, so dark mode must
+// re-skin Material's own surfaces (cards, tables, menus, dialogs, inputs).
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  // Cards
+  --mdc-elevated-card-container-color: var(--kt-bg-surface);
+  --mdc-outlined-card-container-color: var(--kt-bg-surface);
+  .mat-mdc-card { color: var(--kt-text-primary); }
+
+  // Tables
+  .mat-mdc-table { background: var(--kt-bg-surface); }
+  .mat-mdc-cell { color: var(--kt-text-primary); border-bottom-color: var(--kt-border); }
+  .mat-mdc-row:hover { background: var(--kt-row-hover); }
+
+  // Menus, autocomplete & select panels
+  .mat-mdc-menu-panel,
+  .mat-mdc-autocomplete-panel,
+  .mat-mdc-select-panel {
+    background: var(--kt-bg-surface);
+    color: var(--kt-text-primary);
+  }
+  .mat-mdc-menu-item,
+  .mat-mdc-option { color: var(--kt-text-primary); }
+  .mat-mdc-menu-item .mat-icon { color: var(--kt-text-secondary); }
+
+  // Dialogs (confirm/cancel dialogs)
+  --mdc-dialog-container-color: var(--kt-bg-surface);
+  --mdc-dialog-subhead-color: var(--kt-text-primary);
+  --mdc-dialog-supporting-text-color: var(--kt-text-secondary);
+
+  // Form fields
+  --mdc-filled-text-field-container-color: var(--kt-bg-subtle);
+  --mdc-outlined-text-field-input-text-color: var(--kt-text-primary);
+  --mdc-outlined-text-field-label-text-color: var(--kt-text-muted);
+  --mdc-outlined-text-field-outline-color: var(--kt-border);
+  .mat-mdc-input-element { color: var(--kt-text-primary); caret-color: var(--kt-accent); }
+  .mat-mdc-form-field { color: var(--kt-text-primary); }
+
+  // Toolbar & tab bar: use a dark surface (not the light-indigo primary token)
+  .shell-toolbar,
+  .nav-tabs { background: var(--kt-bg-surface) !important; }
+
+  // Generic text
+  .mat-mdc-card-subtitle,
+  .mat-mdc-card-title { color: var(--kt-text-primary); }
 }
 
 // ===== Print styles =====

@@ -107,6 +107,9 @@
           <button mat-icon-button color="primary" (click)="printOrder(order, $event)" matTooltip="Print Order">
             <mat-icon>print</mat-icon>
           </button>
+          <button mat-icon-button class="whatsapp-btn" (click)="shareOrder(order, $event)" matTooltip="Share on WhatsApp">
+            <mat-icon>share</mat-icon>
+          </button>
         </td>
       </ng-container>
 
@@ -210,6 +213,9 @@
       <div class="details-actions">
         <button mat-flat-button color="primary" (click)="printOrder(order, $event)">
           <mat-icon>print</mat-icon> Print Order
+        </button>
+        <button mat-stroked-button class="whatsapp-btn" (click)="shareOrder(order, $event)">
+          <mat-icon>share</mat-icon> Share on WhatsApp
         </button>
       </div>
     </div>

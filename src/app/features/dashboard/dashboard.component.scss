@@ -5,6 +5,28 @@
   margin: 0 auto;
 }
 
+.dash-loading {
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -46,6 +68,75 @@
 .card-value {
   font-size: 32px;
   font-weight: 700;
-  color: #1a237e;
+  color: var(--kt-primary, #1a237e);
   letter-spacing: -0.5px;
+}
+
+// ===== Revenue chart =====
+.revenue-card {
+  margin-top: 24px;
+  padding: 20px 24px;
+  border-radius: 10px;
+}
+
+.revenue-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.revenue-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--kt-text-primary, #212121);
+}
+
+.revenue-sub {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--kt-text-muted, #999);
+}
+
+.chart-wrap {
+  width: 100%;
+}
+
+.revenue-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-baseline {
+  stroke: var(--kt-border, #e0e0e0);
+  stroke-width: 1;
+}
+
+.chart-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.chart-bar {
+  fill: var(--kt-accent, #5c6bc0);
+  transition: fill 0.15s;
+
+  &.is-hovered {
+    fill: var(--kt-primary, #1a237e);
+  }
+}
+
+.chart-x-label {
+  fill: var(--kt-text-muted, #999);
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+}
+
+.chart-value-label {
+  fill: var(--kt-text-primary, #212121);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
 }
