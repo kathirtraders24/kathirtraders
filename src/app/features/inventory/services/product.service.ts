@@ -4,6 +4,18 @@ import { Observable, of, map } from 'rxjs';
 import { Product } from '../../../shared/models';
 import { environment } from '../../../../environments/environment';
 
+/** A product row ready for bulk import (adds optional opening stock). */
+export type ImportProduct = Omit<Product, 'id'> & {
+  quantityOnHand?: number;
+  reorderLevel?: number;
+};
+
+export interface BulkImportResult {
+  created: number;
+  skipped: { row: number; sku: string; reason: string }[];
+  errors: { row: number; sku: string; messages: string[] }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private http = inject(HttpClient);
@@ -83,6 +95,25 @@ export class ProductService {
 
   create(product: Omit<Product, 'id'>): Observable<Product> {
     return this.http.post<any>(this.baseUrl, this.toApiPayload(product)).pipe(map((item) => this.toProduct(item)));
+  }
+
+  /** Bulk-insert products (from a spreadsheet import). */
+  bulkCreate(products: ImportProduct[]): Observable<BulkImportResult> {
+    const payload = {
+      products: products.map((p) => {
+        const api = this.toApiPayload(p);
+        if ('quantityOnHand' in api) {
+          api['quantity_on_hand'] = api['quantityOnHand'];
+          delete api['quantityOnHand'];
+        }
+        if ('reorderLevel' in api) {
+          api['reorder_level'] = api['reorderLevel'];
+          delete api['reorderLevel'];
+        }
+        return api;
+      }),
+    };
+    return this.http.post<BulkImportResult>(`${this.baseUrl}/bulk`, payload);
   }
 
   update(id: string, product: Partial<Product>): Observable<Product> {

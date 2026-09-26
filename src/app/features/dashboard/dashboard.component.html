@@ -1,7 +1,22 @@
 <h2 class="page-title">Dashboard</h2>
-<div class="dashboard-grid">
-  @for (card of summaryCards; track card.title) {
-    <mat-card class="summary-card" [routerLink]="card.route" appearance="outlined">
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" class="dash-loading"></mat-progress-bar>
+}
+
+<div class="quick-actions anim-stagger">
+  @for (action of quickActions; track action.label) {
+    <button mat-stroked-button class="quick-action-btn" [routerLink]="action.route">
+      <mat-icon [style.color]="action.color">{{ action.icon }}</mat-icon>
+      <span>{{ action.label }}</span>
+    </button>
+  }
+</div>
+
+<div class="dashboard-grid anim-stagger">
+  @for (card of summaryCards(); track card.title) {
+    <mat-card class="summary-card kt-spotlight" ktSpotlight [routerLink]="card.route" appearance="outlined"
+              [style.--accent]="card.color">
       <mat-card-header>
         <div class="card-icon-wrap" [style.background]="card.color + '18'">
           <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
@@ -10,8 +25,53 @@
         <mat-card-subtitle>{{ card.subtitle }}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <span class="card-value">{{ card.value }}</span>
+        @if (card.raw === null) {
+          <span class="card-value">—</span>
+        } @else {
+          <span class="card-value" [ktCountUp]="card.raw" [countUpFormat]="card.format"></span>
+        }
       </mat-card-content>
     </mat-card>
   }
 </div>
+
+<mat-card class="revenue-card surface-card anim-fade-up kt-spotlight" ktSpotlight appearance="outlined">
+  <div class="revenue-head">
+    <div>
+      <h3 class="revenue-title">Revenue — last 7 days</h3>
+      <p class="revenue-sub">Combined POS bills and confirmed tax invoices</p>
+    </div>
+  </div>
+
+  @if (bars().length > 0) {
+    <div class="chart-wrap">
+      <svg [attr.viewBox]="'0 0 ' + chart.width + ' ' + chart.height" class="revenue-svg" preserveAspectRatio="xMidYMid meet">
+        <line [attr.x1]="chart.padX" [attr.x2]="chart.width - chart.padX"
+              [attr.y1]="chart.height - chart.padBottom" [attr.y2]="chart.height - chart.padBottom"
+              class="chart-baseline" />
+        @for (bar of bars(); track trackByPoint($index, bar)) {
+          <g (mouseenter)="hoveredDate.set(bar.point.date)" (mouseleave)="hoveredDate.set(null)">
+            <rect [attr.x]="bar.x" [attr.width]="bar.w"
+                  [attr.y]="chart.padTop" [attr.height]="chart.height - chart.padTop - chart.padBottom"
+                  class="chart-hit" />
+            <rect [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.w" [attr.height]="bar.h"
+                  rx="4" class="chart-bar"
+                  [class.is-hovered]="hoveredDate() === bar.point.date" />
+            <text [attr.x]="bar.x + bar.w / 2" [attr.y]="chart.height - 8"
+                  text-anchor="middle" class="chart-x-label">{{ bar.label }}</text>
+            @if (hoveredDate() === bar.point.date) {
+              <text [attr.x]="bar.x + bar.w / 2" [attr.y]="bar.y - 6"
+                    text-anchor="middle" class="chart-value-label">{{ bar.point.total | paise }}</text>
+            }
+          </g>
+        }
+      </svg>
+    </div>
+  } @else if (!loading()) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">bar_chart</mat-icon>
+      <p class="empty-title">No revenue yet</p>
+      <p class="empty-sub">Sales from the last 7 days will appear here.</p>
+    </div>
+  }
+</mat-card>

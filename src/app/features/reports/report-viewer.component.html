@@ -1,0 +1,83 @@
+@if (config(); as cfg) {
+  <div class="report-head">
+    <a mat-button routerLink="/reports" class="back-link no-print">
+      <mat-icon>arrow_back</mat-icon> Reports
+    </a>
+    <h2 class="page-title report-title">{{ cfg.title }}</h2>
+    <div class="report-actions no-print">
+      <button mat-stroked-button (click)="exportCsv()">
+        <mat-icon>table_view</mat-icon> Export CSV
+      </button>
+      <button mat-stroked-button (click)="print()">
+        <mat-icon>print</mat-icon> Print
+      </button>
+    </div>
+  </div>
+
+  <div class="print-only report-print-header">
+    <strong>{{ shopName }}</strong> — {{ cfg.title }}
+    @if (cfg.hasDateRange && data()) {
+      <span>({{ data()!.from }} to {{ data()!.to }})</span>
+    }
+  </div>
+
+  @if (cfg.hasDateRange) {
+    <div class="filters no-print">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="fromPicker" [ngModel]="from()" (ngModelChange)="from.set($event)" />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fromPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>To</mat-label>
+        <input matInput [matDatepicker]="toPicker" [ngModel]="to()" (ngModelChange)="to.set($event)" />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+        <mat-datepicker #toPicker></mat-datepicker>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="load()">
+        <mat-icon>filter_alt</mat-icon> Apply
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  @if (data(); as d) {
+    @if (d.rows.length > 0) {
+      <div class="summary-row">
+        @for (s of cfg.summary; track s.key) {
+          <div class="summary-tile surface-card">
+            <span class="summary-label">{{ s.label }}</span>
+            <span class="summary-value">{{ format(d[s.key], s.type) }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="table-wrap surface-card">
+        <table mat-table [dataSource]="d.rows">
+          @for (col of cfg.columns; track col.key) {
+            <ng-container [matColumnDef]="col.key">
+              <th mat-header-cell *matHeaderCellDef [class.num]="col.type === 'money' || col.type === 'number'">
+                {{ col.label }}
+              </th>
+              <td mat-cell *matCellDef="let row" [class.num]="col.type === 'money' || col.type === 'number'">
+                {{ format(row[col.key], col.type) }}
+              </td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+        </table>
+      </div>
+    } @else if (!loading()) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">bar_chart</mat-icon>
+        <p class="empty-title">No data for this period</p>
+        <p class="empty-sub">Try a different date range.</p>
+      </div>
+    }
+  }
+}

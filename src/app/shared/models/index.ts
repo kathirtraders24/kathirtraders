@@ -15,6 +15,7 @@ export interface EstimationLineItem {
   productName: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;
   unitRate: PaiseAmount;
   discount: PaiseAmount;
   gstRate: number;
@@ -40,6 +41,9 @@ export interface Estimation {
   totalSgst: PaiseAmount;
   totalIgst: PaiseAmount;
   grandTotal: PaiseAmount;
+  overallDiscountType?: 'flat' | 'percent';
+  overallDiscountValue?: number;   // percent number or rupees number
+  overallDiscount?: PaiseAmount;   // paise
   notes?: string;
   status: EstimationStatus;
 }
@@ -100,6 +104,7 @@ export interface OrderLineItem {
   name: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;
   unitPrice: PaiseAmount;
   discount: PaiseAmount;
   totalPrice: PaiseAmount;
@@ -107,6 +112,7 @@ export interface OrderLineItem {
 
 export interface Order {
   id: string;
+  orderNumber?: string;
   customerName: string;
   customerPhone: string;
   date: string;
@@ -125,6 +131,7 @@ export interface InvoiceLineItem {
   productName: string;
   hsnCode: string;
   quantity: number;
+  unit?: string;
   unitRate: PaiseAmount;
   discount: PaiseAmount;
   gstRate: number;

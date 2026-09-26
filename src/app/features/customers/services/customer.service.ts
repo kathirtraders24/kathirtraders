@@ -50,6 +50,12 @@ export class CustomerService {
     return this.http.get<any[]>(this.baseUrl).pipe(map((items) => items.map((item) => this.toCustomer(item))));
   }
 
+  getOutstanding(): Observable<Customer[]> {
+    return this.http
+      .get<any[]>(this.baseUrl, { params: { outstanding: '1' } })
+      .pipe(map((items) => items.map((item) => this.toCustomer(item))));
+  }
+
   getById(id: string): Observable<Customer> {
     return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(map((item) => this.toCustomer(item)));
   }

@@ -59,7 +59,7 @@ export interface OverallDiscountDialogData {
     </mat-dialog-actions>
   `,
   styles: [`
-    .subtotal-info { margin-bottom: 16px; font-size: 14px; color: #333; }
+    .subtotal-info { margin-bottom: 16px; font-size: 14px; color: var(--kt-text-primary); }
     .type-toggle { margin-bottom: 16px; width: 100%; }
     .type-toggle mat-button-toggle { flex: 1; }
     .value-field { width: 100%; }

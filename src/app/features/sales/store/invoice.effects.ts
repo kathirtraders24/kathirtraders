@@ -38,6 +38,20 @@ export class InvoiceEffects {
     )
   );
 
+  updateInvoice$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(InvoiceActions.updateInvoice),
+      exhaustMap(({ id, changes }) =>
+        this.invoiceService.update(id, changes).pipe(
+          map((invoice) => InvoiceActions.updateInvoiceSuccess({ invoice })),
+          catchError((err) =>
+            of(InvoiceActions.updateInvoiceFailure({ error: err.message }))
+          )
+        )
+      )
+    )
+  );
+
   confirmInvoice$ = createEffect(() =>
     this.actions$.pipe(
       ofType(InvoiceActions.confirmInvoice),

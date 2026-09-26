@@ -3,6 +3,17 @@
   margin: 0 auto;
 }
 
+.form-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.import-btn {
+  white-space: nowrap;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

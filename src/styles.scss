@@ -1,32 +1,128 @@
-/* Global styles for Kathir Traders */
+/* Global styles for Kathir Traders — "Glass + Gradient" design system */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
-$primary: #1a237e;
-$primary-light: #e8eaf6;
-$accent: #5c6bc0;
-$text-primary: #212121;
-$text-secondary: #666;
-$text-muted: #999;
-$border: #e0e0e0;
-$bg-surface: #fff;
-$bg-subtle: #fafafa;
-$radius: 8px;
-$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+// ===== Design tokens (light) =====
+:root {
+  color-scheme: light;
 
-html, body { height: 100%; }
-body {
-  margin: 0;
-  font-family: 'Inter', Roboto, 'Helvetica Neue', sans-serif;
-  color: $text-primary;
-  background: #f4f6f8;
-  -webkit-font-smoothing: antialiased;
+  --kt-font-body: 'Inter', Roboto, 'Helvetica Neue', sans-serif;
+  --kt-font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+  // Brand
+  --kt-primary: #4f46e5;
+  --kt-primary-strong: #4338ca;
+  --kt-accent: #7c3aed;
+  --kt-primary-light: #eef2ff;
+  --kt-grad-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --kt-grad-primary-soft: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(124, 58, 237, 0.12));
+  --kt-grad-text: var(--kt-grad-primary);
+
+  // Text
+  --kt-text-primary: #1e1b2e;
+  --kt-text-secondary: #565270;
+  --kt-text-muted: #928da3;
+
+  // Surfaces & glass
+  --kt-bg-app: #f5f6fc;
+  --kt-bg-surface: #ffffff;
+  --kt-bg-subtle: #f4f4fb;
+  --kt-glass: rgba(255, 255, 255, 0.72);
+  --kt-glass-strong: rgba(255, 255, 255, 0.88);
+  --kt-glass-border: rgba(255, 255, 255, 0.7);
+  --kt-border: rgba(79, 70, 229, 0.12);
+  --kt-table-head: rgba(79, 70, 229, 0.05);
+  --kt-row-hover: rgba(79, 70, 229, 0.05);
+
+  // Effects
+  --kt-radius: 16px;
+  --kt-radius-sm: 12px;
+  --kt-blur: blur(16px) saturate(140%);
+  --kt-shadow-sm: 0 2px 8px rgba(30, 27, 46, 0.06);
+  --kt-shadow-md: 0 8px 24px rgba(30, 27, 46, 0.10);
+  --kt-shadow-glass: 0 10px 30px rgba(48, 42, 96, 0.12);
+  --kt-glow: 0 0 0 1px rgba(124, 58, 237, 0.08), 0 14px 36px rgba(124, 58, 237, 0.20);
 }
 
-// ===== Consistent page container mixin =====
-// Apply via :host in each feature component
-// :host { @extend %page-host; }
+// ===== Design tokens (dark — "cinematic premium") =====
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  // Neon brand accents on a near-black stage
+  --kt-primary: #8b93ff;
+  --kt-primary-strong: #6366f1;
+  --kt-accent: #a78bfa;
+  --kt-neon: #22d3ee;
+  --kt-primary-light: rgba(129, 140, 248, 0.14);
+  --kt-grad-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #22d3ee 140%);
+  --kt-grad-primary-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.20), rgba(139, 92, 246, 0.20));
+  // Bright pastel gradient for heading text so it stays crisp on the black stage
+  --kt-grad-text: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 55%, #67e8f9 120%);
+
+  // High-contrast, slightly cool text
+  --kt-text-primary: #f3f4ff;
+  --kt-text-secondary: #b4b7d6;
+  --kt-text-muted: #7f83a8;
+
+  // Deep charcoal/navy stage + smoked glass with neon edges
+  --kt-bg-app: #07070e;
+  --kt-bg-surface: #12131f;
+  --kt-bg-subtle: #171a2b;
+  --kt-glass: rgba(20, 22, 38, 0.55);
+  --kt-glass-strong: rgba(16, 18, 32, 0.88);
+  --kt-glass-border: rgba(129, 140, 248, 0.18);
+  --kt-border: rgba(129, 140, 248, 0.14);
+  --kt-table-head: rgba(129, 140, 248, 0.06);
+  --kt-row-hover: rgba(129, 140, 248, 0.08);
+
+  // Dramatic depth + colored glow
+  --kt-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.6);
+  --kt-shadow-md: 0 12px 34px rgba(0, 0, 0, 0.7);
+  --kt-shadow-glass: 0 16px 46px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(129, 140, 248, 0.06);
+  --kt-glow: 0 0 0 1px rgba(139, 92, 246, 0.28), 0 20px 56px rgba(99, 102, 241, 0.40);
+}
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--kt-font-body);
+  color: var(--kt-text-primary);
+  background: var(--kt-bg-app);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+// Animated aurora backdrop (sits behind all content)
+body::before {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 40% at 12% 18%, rgba(99, 102, 241, 0.22), transparent 70%),
+    radial-gradient(38% 38% at 88% 12%, rgba(168, 85, 247, 0.20), transparent 70%),
+    radial-gradient(45% 45% at 78% 88%, rgba(56, 189, 248, 0.14), transparent 70%);
+  animation: kt-aurora 26s ease-in-out infinite alternate;
+}
+
+@keyframes kt-aurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(0, -2.5%, 0) scale(1.1); }
+}
+
+// Custom scrollbars
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--kt-grad-primary);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+// ===== Page container mixin =====
 %page-host {
   display: block;
   padding: 24px 32px;
@@ -34,94 +130,442 @@ body {
   margin: 0 auto;
 }
 
-// ===== Consistent page title =====
+// ===== Page title (gradient display type) =====
 .page-title {
   text-align: center;
-  font-size: 22px;
-  font-weight: 600;
-  color: $primary;
+  font-family: var(--kt-font-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
   margin: 0 0 24px;
-  letter-spacing: 0.2px;
+  background: var(--kt-grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
-// ===== Consistent card surface =====
+// ===== Glass surface =====
 .surface-card {
-  background: $bg-surface;
-  border: 1px solid $border;
-  border-radius: $radius;
-  box-shadow: $shadow-sm;
+  background: var(--kt-glass);
+  backdrop-filter: var(--kt-blur);
+  -webkit-backdrop-filter: var(--kt-blur);
+  border: 1px solid var(--kt-glass-border);
+  border-radius: var(--kt-radius);
+  box-shadow: var(--kt-shadow-glass);
 }
 
-// ===== Consistent empty state =====
+// ===== Empty state =====
 .empty-state {
   text-align: center;
   padding: 64px 24px;
-  color: $text-muted;
+  color: var(--kt-text-muted);
 
   .empty-icon {
     font-size: 56px;
     width: 56px;
     height: 56px;
-    color: #ccc;
+    color: var(--kt-text-muted);
+    opacity: 0.6;
     margin-bottom: 16px;
   }
 
   .empty-title {
     font-size: 18px;
-    font-weight: 500;
-    color: $text-secondary;
+    font-weight: 600;
+    color: var(--kt-text-secondary);
     margin: 0 0 8px;
   }
 
   .empty-sub {
     font-size: 14px;
-    color: $text-muted;
+    color: var(--kt-text-muted);
     margin: 0;
   }
 }
 
-// ===== Consistent status badges =====
+// ===== Status badges =====
 .status-badge {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
 }
 
-.status-paid   { background: #c8e6c9; color: #2e7d32; }
-.status-partial { background: #fff9c4; color: #f57f17; }
-.status-unpaid  { background: #ffcdd2; color: #c62828; }
+.status-paid    { background: rgba(34, 197, 94, 0.16);  color: #15803d; }
+.status-partial { background: rgba(234, 179, 8, 0.18);  color: #a16207; }
+.status-unpaid  { background: rgba(239, 68, 68, 0.16);  color: #b91c1c; }
 
-// ===== Mat table global refinement =====
+// ===== Loading skeleton =====
+.skeleton {
+  background: linear-gradient(90deg, var(--kt-bg-subtle) 25%, var(--kt-border) 37%, var(--kt-bg-subtle) 63%);
+  background-size: 400% 100%;
+  animation: kt-shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+@keyframes kt-shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+// ===== Global Material component reskin =====
+// Cards → frosted glass, everywhere
+.mat-mdc-card {
+  --mdc-elevated-card-container-color: transparent;
+  --mdc-outlined-card-container-color: transparent;
+  background: var(--kt-glass) !important;
+  backdrop-filter: var(--kt-blur);
+  -webkit-backdrop-filter: var(--kt-blur);
+  border: 1px solid var(--kt-glass-border) !important;
+  border-radius: var(--kt-radius) !important;
+  box-shadow: var(--kt-shadow-glass) !important;
+  color: var(--kt-text-primary);
+  transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mat-mdc-card-title { font-family: var(--kt-font-display); font-weight: 700; }
+
+// Tables → self-contained glass surface (legible on the aurora backdrop)
 .mat-mdc-table {
+  background: var(--kt-glass);
+  backdrop-filter: var(--kt-blur);
+  -webkit-backdrop-filter: var(--kt-blur);
+  border: 1px solid var(--kt-glass-border);
+  border-radius: var(--kt-radius);
+  overflow: hidden;
+
+  .mat-mdc-header-row { background: var(--kt-table-head); }
+
   .mat-mdc-header-cell {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    color: $text-secondary;
-    background: #f5f5f5;
+    letter-spacing: 0.4px;
+    color: var(--kt-text-secondary);
+    background: transparent;
+    border-bottom: 1px solid var(--kt-border);
   }
 
-  .mat-mdc-row:hover {
-    background: #f9f9f9;
+  .mat-mdc-cell {
+    color: var(--kt-text-primary);
+    border-bottom-color: var(--kt-border);
+  }
+
+  .mat-mdc-row {
+    transition: background 0.18s ease;
+    &:hover { background: var(--kt-row-hover); }
   }
 }
 
-// ===== Snackbar classes =====
+// Primary buttons → gradient with glow (enabled only)
+.mat-mdc-unelevated-button.mat-primary:not(.mat-mdc-button-disabled):not(:disabled),
+.mat-mdc-raised-button.mat-primary:not(.mat-mdc-button-disabled):not(:disabled) {
+  --mdc-filled-button-container-color: transparent;
+  background-image: var(--kt-grad-primary);
+  color: #fff !important;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+
+  &:hover { box-shadow: 0 10px 26px rgba(124, 58, 237, 0.42); transform: translateY(-1px); }
+  &:active { transform: translateY(1px) scale(0.985); }
+}
+
+.mat-mdc-outlined-button {
+  border-radius: 10px;
+  transition: transform 0.12s ease, background 0.2s ease;
+  &:hover { background: var(--kt-grad-primary-soft); }
+  &:active { transform: translateY(1px) scale(0.985); }
+}
+
+// Form fields → tinted focus
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-focus-outline-color: var(--kt-primary);
+  --mdc-outlined-text-field-caret-color: var(--kt-primary);
+}
+
+// ===== Snackbars =====
 .snack-success {
-  --mdc-snackbar-container-color: #43a047;
-  --mdc-snackbar-supporting-text-color: white;
+  --mdc-snackbar-container-color: #16a34a;
+  --mdc-snackbar-supporting-text-color: #fff;
 }
 .snack-error {
-  --mdc-snackbar-container-color: #e53935;
-  --mdc-snackbar-supporting-text-color: white;
+  --mdc-snackbar-container-color: #dc2626;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+.snack-warning {
+  --mdc-snackbar-container-color: #d97706;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+// ===== Dark mode: force legible text on Material components =====
+// The app bundles only the light prebuilt theme, which sets component text
+// colours at the ELEMENT level. These element-scoped rules (with !important on
+// the concrete text nodes) beat that, so everything reads in dark mode.
+[data-theme='dark'] {
+
+  // --- Inputs & text fields ---
+  .mat-mdc-input-element,
+  input.mat-mdc-input-element,
+  textarea.mat-mdc-input-element {
+    color: var(--kt-text-primary) !important;
+    caret-color: var(--kt-accent);
+  }
+  .mat-mdc-input-element::placeholder { color: var(--kt-text-muted) !important; }
+  .mat-mdc-form-field,
+  .mat-mdc-form-field-infix { color: var(--kt-text-primary); }
+  .mdc-floating-label,
+  .mat-mdc-floating-label { color: var(--kt-text-muted) !important; }
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error { color: var(--kt-text-muted); }
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing { border-color: var(--kt-border) !important; }
+
+  // --- Selects ---
+  .mat-mdc-select-value,
+  .mat-mdc-select-value-text,
+  .mat-mdc-select-min-line { color: var(--kt-text-primary) !important; }
+  .mat-mdc-select-placeholder { color: var(--kt-text-muted) !important; }
+  .mat-mdc-select-arrow { color: var(--kt-text-secondary) !important; }
+
+  // --- Overlay panels: menu / autocomplete / select ---
+  .mat-mdc-menu-panel,
+  .mat-mdc-autocomplete-panel,
+  .mat-mdc-select-panel {
+    background: var(--kt-glass-strong) !important;
+    backdrop-filter: var(--kt-blur);
+    -webkit-backdrop-filter: var(--kt-blur);
+  }
+  .mat-mdc-option .mdc-list-item__primary-text,
+  .mat-mdc-menu-item .mdc-list-item__primary-text,
+  .mat-mdc-menu-item .mat-mdc-menu-item-text { color: var(--kt-text-primary) !important; }
+  .mat-mdc-menu-item .mat-icon { color: var(--kt-text-secondary); }
+
+  // --- Buttons (enabled only; disabled handled separately) ---
+  .mat-mdc-button:not(.mat-mdc-button-disabled) .mdc-button__label,
+  .mat-mdc-outlined-button:not(.mat-mdc-button-disabled) .mdc-button__label { color: var(--kt-text-primary) !important; }
+  .mat-mdc-outlined-button { --mdc-outlined-button-outline-color: var(--kt-border); }
+  .mat-mdc-unelevated-button.mat-primary:not(.mat-mdc-button-disabled) .mdc-button__label,
+  .mat-mdc-raised-button.mat-primary:not(.mat-mdc-button-disabled) .mdc-button__label { color: #fff !important; }
+  // Icon buttons without a semantic colour → visible neutral
+  .mat-mdc-icon-button:not(.mat-primary):not(.mat-accent):not(.mat-warn):not(.whatsapp-btn) {
+    color: var(--kt-text-secondary);
+  }
+
+  // --- Checkboxes / radios / labels ---
+  .mdc-label { color: var(--kt-text-primary) !important; }
+
+  // --- Cards / tables / dialogs ---
+  .mat-mdc-card,
+  .mat-mdc-card-content { color: var(--kt-text-primary); }
+  .mat-mdc-card-subtitle { color: var(--kt-text-secondary); }
+  .mat-mdc-cell { color: var(--kt-text-primary) !important; }
+  .mat-mdc-header-cell { color: var(--kt-text-secondary) !important; }
+  .mat-mdc-dialog-surface { background: var(--kt-bg-surface); }
+  .mat-mdc-dialog-container {
+    --mdc-dialog-subhead-color: var(--kt-text-primary);
+    --mdc-dialog-supporting-text-color: var(--kt-text-secondary);
+    color: var(--kt-text-primary);
+  }
+  .mat-mdc-dialog-title,
+  .mat-mdc-dialog-content { color: var(--kt-text-primary) !important; }
+
+  // --- Paginator ---
+  .mat-mdc-paginator,
+  .mat-mdc-paginator-page-size-label,
+  .mat-mdc-paginator-range-label { color: var(--kt-text-secondary); background: transparent; }
+
+  // --- Datepicker popup ---
+  .mat-datepicker-content {
+    background: var(--kt-bg-surface) !important;
+    color: var(--kt-text-primary);
+  }
+  .mat-calendar-body-cell-content { color: var(--kt-text-primary) !important; }
+  .mat-calendar-table-header th,
+  .mat-calendar-body-label,
+  .mat-calendar-period-button { color: var(--kt-text-secondary) !important; }
+  .mat-calendar-arrow { border-top-color: var(--kt-text-secondary) !important; }
+  .mat-datepicker-toggle,
+  .mat-calendar-previous-button,
+  .mat-calendar-next-button { color: var(--kt-text-secondary); }
+
+  // --- Chips & slide toggles ---
+  .mat-mdc-chip .mdc-evolution-chip__text-label { color: var(--kt-text-primary); }
+  .mat-mdc-slide-toggle .mdc-label { color: var(--kt-text-primary); }
+}
+
+// ===== Dark cinematic ambience =====
+// Neon spotlights over a faint tech grid on the near-black stage
+[data-theme='dark'] body::before {
+  background:
+    radial-gradient(38% 40% at 12% 10%, rgba(99, 102, 241, 0.36), transparent 66%),
+    radial-gradient(34% 36% at 88% 8%, rgba(139, 92, 246, 0.32), transparent 66%),
+    radial-gradient(44% 46% at 82% 94%, rgba(34, 211, 238, 0.18), transparent 68%),
+    repeating-linear-gradient(0deg, rgba(129, 140, 248, 0.05) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(129, 140, 248, 0.05) 0 1px, transparent 1px 46px);
+}
+
+// Vignette focuses the eye toward the centre — the "cinematic" frame
+[data-theme='dark'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(130% 120% at 50% -10%, transparent 52%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+// Surfaces bloom with neon on hover
+[data-theme='dark'] .mat-mdc-card:hover,
+[data-theme='dark'] .surface-card:hover {
+  box-shadow: var(--kt-glow);
+}
+
+// Toolbar neon underglow
+[data-theme='dark'] .shell-toolbar {
+  box-shadow: 0 8px 34px rgba(99, 102, 241, 0.4);
+}
+
+// Status badges: brighter text so they read on the dark stage
+[data-theme='dark'] {
+  .status-paid    { background: rgba(34, 197, 94, 0.20);  color: #4ade80; }
+  .status-partial { background: rgba(234, 179, 8, 0.22);  color: #fcd34d; }
+  .status-unpaid  { background: rgba(239, 68, 68, 0.22);  color: #f87171; }
+
+  // Subtle neon halo — kept tight so text stays crisp and legible
+  .page-title { text-shadow: 0 0 14px rgba(167, 139, 250, 0.5); }
+  .card-value { text-shadow: 0 0 12px rgba(167, 139, 250, 0.45); }
+
+  // Brand mark radiates
+  .brand-icon { box-shadow: 0 0 22px rgba(124, 58, 237, 0.6), 0 6px 16px rgba(0, 0, 0, 0.5); }
+}
+
+// ===== Cursor-following spotlight (premium hover) =====
+.kt-spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.kt-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 0%),
+              rgba(139, 92, 246, 0.22), transparent 60%);
+  opacity: var(--spot, 0);
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+// ===== Disabled buttons must read as disabled =====
+// (The gradient/label rules above only style enabled buttons, so these win.)
+.mat-mdc-unelevated-button.mat-mdc-button-disabled,
+.mat-mdc-unelevated-button:disabled,
+.mat-mdc-raised-button.mat-mdc-button-disabled,
+.mat-mdc-raised-button:disabled,
+.mat-mdc-outlined-button.mat-mdc-button-disabled,
+.mat-mdc-outlined-button:disabled,
+.mat-mdc-button.mat-mdc-button-disabled,
+.mat-mdc-button:disabled {
+  background-image: none !important;
+  background-color: rgba(125, 131, 168, 0.16) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 0.5;
+  cursor: not-allowed !important;
+
+  .mdc-button__label,
+  .mat-icon { color: var(--kt-text-muted) !important; }
+}
+
+// Disabled icon buttons
+.mat-mdc-icon-button.mat-mdc-button-disabled,
+.mat-mdc-icon-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+}
+
+// ===== Cinematic motion library =====
+@keyframes kt-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes kt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes kt-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes kt-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+@keyframes kt-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes kt-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.35); }
+  50%      { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); }
+}
+@keyframes kt-bar-grow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes kt-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+// Entrance utilities
+.anim-fade-up  { animation: kt-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-fade-in  { animation: kt-fade-in 0.55s ease both; }
+.anim-scale-in { animation: kt-scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-float    { animation: kt-float 3.2s ease-in-out infinite; }
+
+.anim-stagger > * {
+  animation: kt-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@for $i from 1 through 12 {
+  .anim-stagger > *:nth-child(#{$i}) { animation-delay: #{$i * 60}ms; }
+}
+
+.kt-hero-gradient {
+  background: linear-gradient(120deg, var(--kt-primary), var(--kt-accent), var(--kt-primary));
+  background-size: 200% 200%;
+  animation: kt-gradient-shift 12s ease infinite;
+}
+
+// Buttons: subtle press feedback (non-primary)
+.mat-mdc-button {
+  transition: transform 0.12s ease;
+  &:active { transform: translateY(1px) scale(0.985); }
+}
+
+// ===== Reduced motion =====
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 // ===== Print styles =====
 @media print {
+  body::before,
+  body::after { display: none !important; }
+
   app-layout-shell .mat-sidenav,
   app-layout-shell .mat-toolbar,
   mat-sidenav,
