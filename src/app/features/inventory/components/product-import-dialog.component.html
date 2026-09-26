@@ -1,0 +1,128 @@
+<h2 mat-dialog-title class="import-title">
+  <mat-icon>upload_file</mat-icon> Import Products from Excel
+</h2>
+
+<mat-dialog-content class="import-content">
+  @if (importing()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <!-- Step 1: pick a file -->
+  @if (!result()) {
+    <div class="intro">
+      <p class="intro-text">
+        Upload an <strong>Excel</strong> (.xlsx) or <strong>CSV</strong> file. Required columns:
+        <em>SKU, Name, Category, Sub-Category, Unit, HSN Code, GST Rate, Unit Price</em>.
+        Optional: <em>Quantity, Reorder Level, Description</em>.
+      </p>
+      <button mat-stroked-button type="button" (click)="downloadTemplate()">
+        <mat-icon>download</mat-icon> Download template
+      </button>
+    </div>
+
+    <div class="file-picker">
+      <input #fileInput type="file" hidden accept=".xlsx,.xls,.csv"
+             (change)="onFileSelected($event)" />
+      <button mat-flat-button color="primary" type="button" (click)="fileInput.click()">
+        <mat-icon>attach_file</mat-icon> Choose file
+      </button>
+      @if (fileName()) {
+        <span class="file-name"><mat-icon>description</mat-icon> {{ fileName() }}</span>
+      }
+    </div>
+
+    @if (parsing()) {
+      <p class="muted">Reading file…</p>
+    }
+
+    <!-- Preview -->
+    @if (rows().length > 0) {
+      <div class="summary">
+        <span class="chip chip-valid"><mat-icon>check_circle</mat-icon> {{ validCount() }} ready</span>
+        @if (invalidCount() > 0) {
+          <span class="chip chip-invalid"><mat-icon>error</mat-icon> {{ invalidCount() }} with errors</span>
+        }
+        <span class="muted total">of {{ rows().length }} rows</span>
+      </div>
+
+      <div class="preview-wrap">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>#</th><th></th><th>SKU</th><th>Name</th><th>Category</th>
+              <th class="right">Price</th><th class="right">Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of previewRows(); track row.rowNum) {
+              <tr [class.row-invalid]="!row.valid">
+                <td class="muted">{{ row.rowNum }}</td>
+                <td>
+                  @if (row.valid) {
+                    <mat-icon class="ic-ok">check_circle</mat-icon>
+                  } @else {
+                    <mat-icon class="ic-err" [matTooltip]="row.errors.join(' • ')">error</mat-icon>
+                  }
+                </td>
+                <td>{{ row.display.sku }}</td>
+                <td>{{ row.display.name }}</td>
+                <td>{{ row.display.category }}</td>
+                <td class="right">{{ row.display.price }}</td>
+                <td class="right">{{ row.display.qty }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (rows().length > previewRows().length) {
+          <p class="muted more">…and {{ rows().length - previewRows().length }} more rows</p>
+        }
+      </div>
+    }
+  }
+
+  <!-- Step 2: result summary -->
+  @if (result(); as res) {
+    <div class="result">
+      <div class="result-hero">
+        <mat-icon class="result-icon">task_alt</mat-icon>
+        <div>
+          <div class="result-count">{{ res.created }} imported</div>
+          <div class="muted">
+            {{ res.skipped.length }} skipped · {{ res.errors.length }} failed
+          </div>
+        </div>
+      </div>
+
+      @if (res.skipped.length > 0) {
+        <h4>Skipped (duplicate SKU)</h4>
+        <ul class="issue-list">
+          @for (s of res.skipped; track s.row) {
+            <li>Row {{ s.row }} — <strong>{{ s.sku }}</strong>: {{ s.reason }}</li>
+          }
+        </ul>
+      }
+
+      @if (res.errors.length > 0) {
+        <h4>Failed rows</h4>
+        <ul class="issue-list">
+          @for (e of res.errors; track e.row) {
+            <li>Row {{ e.row }} <strong>{{ e.sku }}</strong> — {{ e.messages.join(', ') }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (!result()) {
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="validCount() === 0 || importing()"
+            (click)="runImport()">
+      <mat-icon>cloud_upload</mat-icon> Import {{ validCount() }} product{{ validCount() === 1 ? '' : 's' }}
+    </button>
+  } @else {
+    <button mat-flat-button color="primary" type="button" (click)="done()">Done</button>
+  }
+</mat-dialog-actions>

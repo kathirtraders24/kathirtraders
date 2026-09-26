@@ -128,12 +128,12 @@ export interface OrderConfirmDialogResult {
     .order-total {
       font-size: 18px;
       font-weight: 700;
-      color: #1a237e;
+      color: var(--kt-primary);
       margin-bottom: 16px;
       text-align: center;
     }
     .full-width { width: 100%; }
-    .split-title { margin: 12px 0 8px; color: #555; }
+    .split-title { margin: 12px 0 8px; color: var(--kt-text-secondary); }
     .split-row {
       display: flex;
       gap: 8px;
@@ -151,7 +151,7 @@ export interface OrderConfirmDialogResult {
     .split-total {
       font-size: 13px;
       font-weight: 600;
-      color: #1a237e;
+      color: var(--kt-primary);
     }
     .split-total.mismatch { color: #e53935; }
     .warn-icon { font-size: 16px; height: 16px; width: 16px; vertical-align: middle; color: #e53935; }

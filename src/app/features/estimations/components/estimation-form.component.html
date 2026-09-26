@@ -23,8 +23,8 @@
     </button>
   </div>
 
-  <!-- Estimation number + load existing by number (items 6-7) -->
-  <div class="number-row">
+  <!-- Load by number + customer info on one compact row (wraps if narrow) -->
+  <div class="fields-row">
     @if (estimationNumber()) {
       <span class="est-number-chip">
         <mat-icon>tag</mat-icon> {{ estimationNumber() }}
@@ -40,10 +40,6 @@
             [disabled]="!loadNumberCtrl.value.trim()">
       <mat-icon>download</mat-icon> Load
     </button>
-  </div>
-
-  <!-- Customer info (shared across both views) -->
-  <div class="customer-row">
     <mat-form-field appearance="outline" class="customer-field">
       <mat-label>Customer Name</mat-label>
       <input matInput [formControl]="customerNameCtrl" placeholder="Optional">

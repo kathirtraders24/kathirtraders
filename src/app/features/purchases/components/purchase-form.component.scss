@@ -47,14 +47,14 @@
 
   .opt-name {
     font-weight: 600;
-    color: #222;
+    color: var(--kt-text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .opt-meta {
     font-size: 12px;
-    color: #777;
+    color: var(--kt-text-muted);
   }
 }
 
@@ -77,22 +77,24 @@
 .items-table {
   width: 100%;
   margin-top: 8px;
-  border-radius: 8px;
+  border-radius: var(--kt-radius-sm);
   overflow: hidden;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--kt-border);
 }
 
 .inline-input {
-  border: 1px solid #ccc;
+  border: 1px solid var(--kt-border);
   border-radius: 4px;
   padding: 6px 8px;
   font-size: 14px;
   text-align: right;
+  background: var(--kt-bg-surface);
+  color: var(--kt-text-primary);
   transition: border-color 0.2s;
 
   &:focus {
-    outline: 2px solid #1a237e;
-    border-color: #1a237e;
+    outline: 2px solid var(--kt-primary);
+    border-color: var(--kt-primary);
   }
 }
 
@@ -113,7 +115,7 @@
     font-size: 14px;
     width: 14px;
     height: 14px;
-    color: #888;
+    color: var(--kt-text-muted);
   }
 }
 
@@ -131,18 +133,18 @@
   align-items: center;
   padding: 8px 0;
   font-size: 14px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--kt-border);
 }
 
 .subtotal-line {
-  color: #555;
+  color: var(--kt-text-secondary);
 }
 
 .discount-line {
-  color: #555;
+  color: var(--kt-text-secondary);
 
   .discount-amount {
-    color: #c62828;
+    color: #dc2626;
     font-weight: 500;
   }
 }
@@ -153,10 +155,10 @@
 }
 
 .gst-line {
-  color: #555;
+  color: var(--kt-text-secondary);
 
   .gst-amount {
-    color: #1a237e;
+    color: var(--kt-primary);
     font-weight: 500;
   }
 }
@@ -184,9 +186,9 @@
 .grand-total-line {
   font-size: 20px;
   font-weight: 700;
-  color: #1a237e;
+  color: var(--kt-primary);
   border-bottom: none;
-  border-top: 2px solid #1a237e;
+  border-top: 2px solid var(--kt-primary);
   padding-top: 12px;
   margin-top: 4px;
 }

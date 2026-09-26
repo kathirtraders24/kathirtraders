@@ -6,14 +6,6 @@
   margin: 0 auto;
 }
 
-.page-title {
-  text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  color: #1a237e;
-  margin: 0 0 24px;
-}
-
 // ---------- Toolbar (view toggle + actions) ----------
 .toolbar-row {
   display: flex;
@@ -66,14 +58,14 @@
 
   .opt-name {
     font-weight: 600;
-    color: #222;
+    color: var(--kt-text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .opt-meta {
     font-size: 12px;
-    color: #777;
+    color: var(--kt-text-muted);
   }
 }
 
@@ -108,7 +100,7 @@
   h3 {
     margin: 0;
     font-size: 15px;
-    color: #1a237e;
+    color: var(--kt-primary);
   }
 }
 
@@ -117,7 +109,7 @@
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--kt-border);
 
   .added-name {
     flex: 1 1 auto;
@@ -125,7 +117,7 @@
   }
 
   .added-qty {
-    color: #555;
+    color: var(--kt-text-secondary);
     font-weight: 500;
   }
 
@@ -136,13 +128,13 @@
   }
 }
 
-// ---------- Number / load row ----------
-.number-row {
+// ---------- Compact fields row (load + customer on one line) ----------
+.fields-row {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
   flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 4px;
 
   .load-btn {
     margin-bottom: 22px; // align with mat-form-field subscript
@@ -154,8 +146,8 @@
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  background: #e8eaf6;
-  color: #1a237e;
+  background: var(--kt-primary-light);
+  color: var(--kt-primary);
   border-radius: 16px;
   font-weight: 600;
   font-size: 14px;
@@ -169,28 +161,20 @@
 }
 
 .load-field {
-  width: 260px;
-}
-
-// ---------- Customer row ----------
-.customer-row {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 4px;
+  width: 200px;
 }
 
 .customer-field {
-  width: 260px;
+  width: 210px;
 }
 
 // ---------- Search + action buttons ----------
 .search-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 
   // mat-form-field has a built-in subscript spacer (~22 px);
   // shift buttons up to visually align with the input.
@@ -202,7 +186,12 @@
 
 .search-field {
   width: 100%;
-  max-width: 500px;
+  max-width: 520px;
+}
+
+.add-product-btn {
+  margin-bottom: 22px; // align with mat-form-field subscript spacer
+  white-space: nowrap;
 }
 
 .add-product-btn {
@@ -217,15 +206,17 @@
 }
 
 .inline-input {
-  border: 1px solid #ccc;
+  border: 1px solid var(--kt-border);
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 14px;
   text-align: right;
+  background: var(--kt-bg-surface);
+  color: var(--kt-text-primary);
 
   &:focus {
-    outline: 2px solid #1a237e;
-    border-color: #1a237e;
+    outline: 2px solid var(--kt-primary);
+    border-color: var(--kt-primary);
   }
 }
 
@@ -250,7 +241,7 @@
     font-size: 14px;
     width: 14px;
     height: 14px;
-    color: #888;
+    color: var(--kt-text-muted);
   }
 }
 
@@ -268,18 +259,18 @@
   align-items: center;
   padding: 8px 0;
   font-size: 14px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--kt-border);
 }
 
 .subtotal-line {
-  color: #555;
+  color: var(--kt-text-secondary);
 }
 
 .discount-line {
-  color: #555;
+  color: var(--kt-text-secondary);
 
   .discount-amount {
-    color: #c62828;
+    color: #dc2626;
     font-weight: 500;
   }
 }
@@ -290,10 +281,10 @@
 }
 
 .gst-line {
-  color: #555;
+  color: var(--kt-text-secondary);
 
   .gst-amount {
-    color: #1a237e;
+    color: var(--kt-primary);
     font-weight: 500;
   }
 }
@@ -321,9 +312,9 @@
 .grand-total-line {
   font-size: 20px;
   font-weight: 700;
-  color: #1a237e;
+  color: var(--kt-primary);
   border-bottom: none;
-  border-top: 2px solid #1a237e;
+  border-top: 2px solid var(--kt-primary);
   padding-top: 12px;
   margin-top: 4px;
 }
@@ -335,7 +326,7 @@
   gap: 10px;
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--kt-border);
 }
 
 .action-spacer {
@@ -374,7 +365,7 @@
 // ---------- Empty state ----------
 .empty-hint {
   text-align: center;
-  color: #888;
+  color: var(--kt-text-muted);
   padding: 48px 0;
   font-size: 15px;
 }

@@ -8,9 +8,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { ProductActions } from '../store/product.actions';
 import { selectProductById } from '../store/product.selectors';
 import { NotificationService } from '../../../core';
+import { ProductImportDialogComponent } from './product-import-dialog.component';
 
 @Component({
   selector: 'app-product-form',
@@ -29,6 +31,7 @@ export class ProductFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private notification = inject(NotificationService);
+  private dialog = inject(MatDialog);
 
   isEditMode = false;
   private productId: string | null = null;
@@ -85,6 +88,19 @@ export class ProductFormComponent implements OnInit {
     }
 
     this.router.navigate(['/inventory']);
+  }
+
+  openImport(): void {
+    const ref = this.dialog.open(ProductImportDialogComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+    });
+    ref.afterClosed().subscribe((createdCount: number) => {
+      if (createdCount && createdCount > 0) {
+        this.store.dispatch(ProductActions.loadProducts());
+        this.router.navigate(['/inventory']);
+      }
+    });
   }
 
   cancel(): void {

@@ -8,16 +8,18 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncPipe, DatePipe } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { InvoiceActions } from '../store/invoice.actions';
 import { selectAllInvoices, selectInvoicesLoading } from '../store/invoice.selectors';
 import { PaisePipe, SalesInvoice, ConfirmDialogComponent } from '../../../shared';
+import { ShareService } from '../../../shared/services/share.service';
 
 @Component({
   selector: 'app-invoice-list',
   standalone: true,
   imports: [
     MatTableModule, MatButtonModule, MatIconModule, MatChipsModule,
-    MatProgressBarModule, AsyncPipe, DatePipe, PaisePipe,
+    MatProgressBarModule, MatTooltipModule, AsyncPipe, DatePipe, PaisePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoice-list.component.html',
@@ -27,6 +29,7 @@ export class InvoiceListComponent implements OnInit {
   private store = inject(Store);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private shareService = inject(ShareService);
 
   invoices$ = this.store.select(selectAllInvoices);
   loading$ = this.store.select(selectInvoicesLoading);
@@ -56,6 +59,16 @@ export class InvoiceListComponent implements OnInit {
       if (confirmed) {
         this.store.dispatch(InvoiceActions.confirmInvoice({ id: inv.id }));
       }
+    });
+  }
+
+  shareInvoice(inv: SalesInvoice): void {
+    this.shareService.whatsappDocument({
+      kind: 'Invoice',
+      number: inv.invoiceNumber,
+      date: inv.date,
+      customerName: inv.customerName,
+      grandTotal: inv.grandTotal,
     });
   }
 

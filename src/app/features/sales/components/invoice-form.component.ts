@@ -291,10 +291,13 @@ export class InvoiceFormComponent {
   }
 
   printInvoice(): void {
+    const invNo = this.invoiceNumber().trim();
     this.billPrintService.print({
       title: 'Tax Invoice',
       date: this.dateCtrl.value,
       customerName: this.customerNameCtrl.value.trim() || undefined,
+      customerPhone: this.customerPhoneCtrl.value.trim() || undefined,
+      metaFields: invNo ? [{ label: 'Invoice No', value: invNo }] : undefined,
       lines: this.lines().map((l) => ({
         name: l.name,
         hsnCode: l.hsnCode,
@@ -324,10 +327,18 @@ export class InvoiceFormComponent {
     const rates = Array.from(new Set(invLines.map((l) => l.gstRate)));
     const uniformRate = rates.length === 1 ? rates[0] : 0;
 
+    // The create/update response loads lines but not the customer relation, so
+    // fall back to the phone still held in the form for the printed bill.
+    const customerPhone =
+      (inv as { customer?: { phone?: string } }).customer?.phone
+      || this.customerPhoneCtrl.value.trim()
+      || undefined;
+
     this.billPrintService.print({
       title: 'Tax Invoice',
       date: inv.date,
-      customerName: inv.customerName || undefined,
+      customerName: inv.customerName || this.customerNameCtrl.value.trim() || undefined,
+      customerPhone,
       metaFields: [{ label: 'Invoice No', value: inv.invoiceNumber }],
       lines: invLines.map((l) => ({
         name: l.productName,

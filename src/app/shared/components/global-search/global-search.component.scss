@@ -1,0 +1,58 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+}
+
+.search-field {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+  }
+
+  ::ng-deep .mdc-notched-outline__leading,
+  ::ng-deep .mdc-notched-outline__notch,
+  ::ng-deep .mdc-notched-outline__trailing {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  ::ng-deep input.mat-mdc-input-element {
+    color: #fff;
+    caret-color: #fff;
+  }
+
+  ::ng-deep input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  mat-icon[matPrefix] {
+    color: rgba(255, 255, 255, 0.8);
+    margin-right: 6px;
+  }
+}
+
+.result-icon {
+  margin-right: 8px;
+  color: var(--kt-text-muted, #999);
+  vertical-align: middle;
+}
+
+.result-label {
+  font-weight: 500;
+}
+
+.result-group {
+  margin-left: 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--kt-accent, #5c6bc0);
+}
+
+.result-sub {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--kt-text-muted, #999);
+}

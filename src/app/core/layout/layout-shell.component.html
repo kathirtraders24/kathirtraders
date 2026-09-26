@@ -1,13 +1,18 @@
 <mat-sidenav-container class="shell-container">
   <mat-sidenav
     #sidenav
-    mode="side"
+    [mode]="isMobile() ? 'over' : 'side'"
     [opened]="sidenavOpen()"
+    (closedStart)="sidenavOpen.set(false)"
     class="shell-sidenav"
   >
     <div class="brand">
       <mat-icon class="brand-icon">store</mat-icon>
       <span class="brand-name">Kathir Traders</span>
+      <span class="brand-spacer"></span>
+      <button mat-icon-button class="sidenav-close" (click)="closeSidenav()" matTooltip="Close menu" aria-label="Close menu">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
     <mat-nav-list>
       @for (item of navItems; track item.route) {
@@ -15,6 +20,7 @@
           mat-list-item
           [routerLink]="item.route"
           routerLinkActive="active-link"
+          (click)="closeSidenavOnMobile()"
         >
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
@@ -28,11 +34,54 @@
       <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span>Kathir Traders</span>
+      <span class="toolbar-title">Kathir Traders</span>
+
+      <app-global-search class="toolbar-search"></app-global-search>
+
       <span class="toolbar-spacer"></span>
-      <span class="toolbar-subtitle">Plumbing & Electrical Accessories</span>
+
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="alertMenu"
+        [matBadge]="alertService.count()"
+        [matBadgeHidden]="alertService.count() === 0"
+        matBadgeColor="warn"
+        matBadgeSize="small"
+        matTooltip="Alerts"
+        aria-label="Alerts"
+      >
+        <mat-icon>notifications</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="themeService.theme() === 'dark' ? 'Light mode' : 'Dark mode'">
+        <mat-icon>{{ themeService.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
     </mat-toolbar>
-    <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="nav-tabs" backgroundColor="primary">
+
+    <mat-menu #alertMenu="matMenu" class="alert-menu">
+      <div class="alert-menu-header">
+        <span>Alerts</span>
+        <span class="alert-count-chip">{{ alertService.count() }}</span>
+      </div>
+      @if (alertService.alerts().length === 0) {
+        <div class="alert-empty">
+          <mat-icon>check_circle</mat-icon>
+          <span>All clear — no alerts</span>
+        </div>
+      } @else {
+        @for (alert of alertService.alerts(); track alert.id) {
+          <a mat-menu-item [routerLink]="alert.route" class="alert-item">
+            <mat-icon [style.color]="alert.color">{{ alert.icon }}</mat-icon>
+            <div class="alert-text">
+              <span class="alert-title">{{ alert.title }}</span>
+              <span class="alert-detail">{{ alert.detail }}</span>
+            </div>
+          </a>
+        }
+      }
+    </mat-menu>
+
+    <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="nav-tabs">
       @for (item of navItems; track item.route) {
         <a mat-tab-link
           [routerLink]="item.route"
@@ -45,7 +94,7 @@
       }
     </nav>
     <mat-tab-nav-panel #tabPanel>
-      <main class="shell-content">
+      <main class="shell-content" [@routeFade]="routeState()">
         <router-outlet />
       </main>
     </mat-tab-nav-panel>
