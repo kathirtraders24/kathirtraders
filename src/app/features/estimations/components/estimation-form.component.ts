@@ -15,6 +15,7 @@ import { AsyncPipe, CurrencyPipe } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Product, BillPrintService, Estimation, EstimationStatus } from '../../../shared';
+import { lineGross } from '../../../shared/utils/line-pricing';
 import { GstService, NotificationService } from '../../../core';
 import { environment } from '../../../../environments/environment';
 import { ProductService } from '../../inventory/services/product.service';
@@ -32,6 +33,7 @@ export interface EstimationLine {
   hsnCode: string;
   quantity: number;
   unit: string;          // e.g. Nos, Mtr, Kg
+  meters?: number;       // optional length in metres (per-metre pricing)
   unitPrice: number;     // paise
   discountType: DiscountType;
   discountValue: number; // percent number or rupees number
@@ -110,7 +112,7 @@ export class EstimationFormComponent {
   gstPercent = signal(0);        // 0 = no GST, e.g. 5, 12, 18, 28
   readonly gstOptions = [0, 5, 12, 18, 28];
   readonly showGST = environment.showGST;
-  displayedColumns = ['sno', 'name', 'hsnCode', 'quantity', 'unitPrice', 'discount', 'totalPrice', 'actions'];
+  displayedColumns = ['sno', 'name', 'hsnCode', 'quantity', 'meters', 'unitPrice', 'discount', 'totalPrice', 'actions'];
   today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   constructor() {
@@ -147,7 +149,7 @@ export class EstimationFormComponent {
 
     if (existing) {
       const newQty = existing.quantity + qty;
-      const lineTotal = existing.unitPrice * newQty;
+      const lineTotal = lineGross(existing.unitPrice, newQty, existing.meters);
       const disc = this.calcDiscount(existing.discountType, existing.discountValue, lineTotal);
       const updated = { ...existing, quantity: newQty, discount: disc, totalPrice: lineTotal - disc };
       const rest = this.lines().filter((l) => l.productId !== product.id);
@@ -163,7 +165,7 @@ export class EstimationFormComponent {
         discountType: 'flat',
         discountValue: 0,
         discount: 0,
-        totalPrice: product.unitPrice * qty,
+        totalPrice: lineGross(product.unitPrice, qty),
       };
       this.lines.set([line, ...this.lines()]);
     }
@@ -189,9 +191,37 @@ export class EstimationFormComponent {
     this.lines.update((prev) =>
       prev.map((l) => {
         if (l.productId !== productId) return l;
-        const lineTotal = l.unitPrice * qty;
+        const lineTotal = lineGross(l.unitPrice, qty, l.meters);
         const disc = this.calcDiscount(l.discountType, l.discountValue, lineTotal);
         return { ...l, quantity: qty, discount: disc, totalPrice: lineTotal - disc };
+      })
+    );
+    this.recalcGrandTotal();
+  }
+
+  /** Optional metres for length-based items; blank/0 reverts to piece pricing. */
+  updateMeters(productId: string, meters: number): void {
+    const m = meters && meters > 0 ? meters : undefined;
+    this.lines.update((prev) =>
+      prev.map((l) => {
+        if (l.productId !== productId) return l;
+        const lineTotal = lineGross(l.unitPrice, l.quantity, m);
+        const disc = this.calcDiscount(l.discountType, l.discountValue, lineTotal);
+        return { ...l, meters: m, discount: disc, totalPrice: lineTotal - disc };
+      })
+    );
+    this.recalcGrandTotal();
+  }
+
+  /** Edit the per-unit price (rupees) for a line; recalculates its total. */
+  updateUnitPrice(productId: string, rupees: number): void {
+    const unitPrice = Math.max(0, Math.round((rupees || 0) * 100));
+    this.lines.update((prev) =>
+      prev.map((l) => {
+        if (l.productId !== productId) return l;
+        const lineTotal = lineGross(unitPrice, l.quantity, l.meters);
+        const disc = this.calcDiscount(l.discountType, l.discountValue, lineTotal);
+        return { ...l, unitPrice, discount: disc, totalPrice: lineTotal - disc };
       })
     );
     this.recalcGrandTotal();
@@ -213,7 +243,7 @@ export class EstimationFormComponent {
       this.lines.update((prev) =>
         prev.map((l) => {
           if (l.productId !== line.productId) return l;
-          const lineTotal = l.unitPrice * l.quantity;
+          const lineTotal = lineGross(l.unitPrice, l.quantity, l.meters);
           const disc = this.calcDiscount(result.type, result.value, lineTotal);
           return {
             ...l,
@@ -306,6 +336,7 @@ export class EstimationFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitPrice: l.unitPrice,
         discount: l.discount,
         totalPrice: l.totalPrice,
@@ -393,6 +424,7 @@ export class EstimationFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitPrice: l.unitPrice,
         gstRate,
         discount: l.discount,
@@ -406,13 +438,15 @@ export class EstimationFormComponent {
   private applyEstimation(est: Estimation): void {
     const estLines = est.lines ?? [];
     const formLines: EstimationLine[] = estLines.map((l) => {
-      const gross = l.unitRate * l.quantity;
+      const meters = l.meters && l.meters > 0 ? l.meters : undefined;
+      const gross = lineGross(l.unitRate, l.quantity, meters);
       return {
         productId: l.productId,
         name: l.productName,
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit || 'Nos',
+        meters,
         unitPrice: l.unitRate,
         discountType: 'flat',
         discountValue: Math.round(l.discount / 100),
@@ -450,6 +484,7 @@ export class EstimationFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitRate: l.unitPrice,
         discount: l.discount,
         gstRate,

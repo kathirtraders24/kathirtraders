@@ -12,6 +12,7 @@ import { AsyncPipe, CurrencyPipe } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Product, Order, BillPrintService } from '../../../shared';
+import { lineGross } from '../../../shared/utils/line-pricing';
 import { environment } from '../../../../environments/environment';
 import { NotificationService } from '../../../core';
 import { ProductService } from '../../inventory/services/product.service';
@@ -26,6 +27,7 @@ export interface PurchaseLine {
   hsnCode: string;
   quantity: number;
   unit: string;             // e.g. Nos, Mtr, Kg
+  meters?: number;          // optional length in metres (per-metre pricing)
   unitPrice: number;        // paise
   discountType: DiscountType;
   discountValue: number;    // percent (e.g. 10) or rupees (e.g. 50)
@@ -85,7 +87,7 @@ export class PurchaseFormComponent {
     return Math.round(val * 100);
   });
   grandTotal = computed(() => Math.max(0, this.subtotal() - this.overallDiscount()));
-  displayedColumns = ['sno', 'name', 'hsnCode', 'quantity', 'unitPrice', 'discount', 'totalPrice', 'actions'];
+  displayedColumns = ['sno', 'name', 'hsnCode', 'quantity', 'meters', 'unitPrice', 'discount', 'totalPrice', 'actions'];
 
   constructor() {
     this.restoreDraft();
@@ -120,7 +122,7 @@ export class PurchaseFormComponent {
 
     if (existing) {
       const newQty = existing.quantity + qty;
-      const lineTotal = existing.unitPrice * newQty;
+      const lineTotal = lineGross(existing.unitPrice, newQty, existing.meters);
       const discount = this.calcDiscount(existing.discountType, existing.discountValue, lineTotal);
       const updated = { ...existing, quantity: newQty, discount, totalPrice: lineTotal - discount };
       const rest = this.lines().filter((l) => l.productId !== product.id);
@@ -136,7 +138,7 @@ export class PurchaseFormComponent {
         discountType: 'flat',
         discountValue: 0,
         discount: 0,
-        totalPrice: product.unitPrice * qty,
+        totalPrice: lineGross(product.unitPrice, qty),
       };
       this.lines.set([line, ...this.lines()]);
     }
@@ -155,9 +157,35 @@ export class PurchaseFormComponent {
     this.lines.update((prev) =>
       prev.map((l) => {
         if (l.productId !== productId) return l;
-        const lineTotal = l.unitPrice * qty;
+        const lineTotal = lineGross(l.unitPrice, qty, l.meters);
         const discount = this.calcDiscount(l.discountType, l.discountValue, lineTotal);
         return { ...l, quantity: qty, discount, totalPrice: lineTotal - discount };
+      })
+    );
+  }
+
+  /** Optional metres for length-based items; blank/0 reverts to piece pricing. */
+  updateMeters(productId: string, meters: number): void {
+    const m = meters && meters > 0 ? meters : undefined;
+    this.lines.update((prev) =>
+      prev.map((l) => {
+        if (l.productId !== productId) return l;
+        const lineTotal = lineGross(l.unitPrice, l.quantity, m);
+        const discount = this.calcDiscount(l.discountType, l.discountValue, lineTotal);
+        return { ...l, meters: m, discount, totalPrice: lineTotal - discount };
+      })
+    );
+  }
+
+  /** Edit the per-unit price (rupees) for a line; recalculates its total. */
+  updateUnitPrice(productId: string, rupees: number): void {
+    const unitPrice = Math.max(0, Math.round((rupees || 0) * 100));
+    this.lines.update((prev) =>
+      prev.map((l) => {
+        if (l.productId !== productId) return l;
+        const lineTotal = lineGross(unitPrice, l.quantity, l.meters);
+        const discount = this.calcDiscount(l.discountType, l.discountValue, lineTotal);
+        return { ...l, unitPrice, discount, totalPrice: lineTotal - discount };
       })
     );
   }
@@ -179,7 +207,7 @@ export class PurchaseFormComponent {
       this.lines.update((prev) =>
         prev.map((l) => {
           if (l.productId !== line.productId) return l;
-          const lineTotal = l.unitPrice * l.quantity;
+          const lineTotal = lineGross(l.unitPrice, l.quantity, l.meters);
           const discount = this.calcDiscount(result.type, result.value, lineTotal);
           return {
             ...l,
@@ -292,6 +320,7 @@ export class PurchaseFormComponent {
           hsnCode: l.hsnCode,
           quantity: l.quantity,
           unit: l.unit,
+          meters: l.meters,
           unitPrice: l.unitPrice,
           discount: l.discount,
           totalPrice: l.totalPrice,
@@ -313,7 +342,9 @@ export class PurchaseFormComponent {
           this.overallDiscountValue.set(0);
           this.gstPercent.set(0);
           this.clearDraft();
-          this.notification.success('Order confirmed successfully!');
+          this.notification.success(
+            saved.orderNumber ? `Order ${saved.orderNumber} confirmed` : 'Order confirmed successfully!',
+          );
         },
         error: () => {
           this.notification.error('Failed to place order. Please try again.');
@@ -335,6 +366,7 @@ export class PurchaseFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitPrice: l.unitPrice,
         discount: l.discount,
         totalPrice: l.totalPrice,

@@ -16,6 +16,7 @@ export interface EstimationLineItem {
   hsnCode: string;
   quantity: number;
   unit?: string;
+  meters?: number;          // optional length in metres; total = unitRate × qty × metres
   unitRate: PaiseAmount;
   discount: PaiseAmount;
   gstRate: number;
@@ -105,6 +106,7 @@ export interface OrderLineItem {
   hsnCode: string;
   quantity: number;
   unit?: string;
+  meters?: number;          // optional length in metres; total = unitPrice × qty × metres
   unitPrice: PaiseAmount;
   discount: PaiseAmount;
   totalPrice: PaiseAmount;
@@ -132,6 +134,7 @@ export interface InvoiceLineItem {
   hsnCode: string;
   quantity: number;
   unit?: string;
+  meters?: number;          // optional length in metres; total = unitRate × qty × metres
   unitRate: PaiseAmount;
   discount: PaiseAmount;
   gstRate: number;

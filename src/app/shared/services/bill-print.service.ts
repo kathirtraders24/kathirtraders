@@ -5,6 +5,7 @@ export interface BillLineItem {
   hsnCode: string;
   quantity: number;
   unit?: string;        // e.g. Nos, Mtr, Kg
+  meters?: number;      // optional length in metres (shown as "qty × N m")
   unitPrice: number;   // paise
   discount: number;     // paise
   totalPrice: number;   // paise
@@ -31,20 +32,51 @@ export interface BillConfig {
 export class BillPrintService {
 
   print(config: BillConfig): void {
-    const printWindow = window.open('', '_blank', 'width=800,height=1000');
-    if (!printWindow) return;
-
     const html = this.buildHtml(config);
-    printWindow.document.write(html);
-    printWindow.document.close();
+    const title = `${config.title} - Kathir Traders`;
 
-    // Set title to avoid "about:blank" in browser print header/footer
-    printWindow.document.title = `${config.title} - Kathir Traders`;
+    // Try a normal window first (lets the user review the bill, then print/save PDF).
+    const printWindow = window.open('', '_blank', 'width=800,height=1000');
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.document.title = title; // avoids "about:blank" in print header
+      printWindow.focus();
+      return;
+    }
+
+    // Popups are blocked (common when printing from an async callback after an
+    // order is saved) — fall back to a hidden iframe and open the print dialog.
+    this.printViaIframe(html, title);
+  }
+
+  /** Renders the bill in a hidden iframe and triggers the print dialog. */
+  private printViaIframe(html: string, title: string): void {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    iframe.onload = () => {
+      const win = iframe.contentWindow;
+      if (win) {
+        try {
+          win.document.title = title;
+          win.focus();
+          win.print();
+        } catch {
+          /* ignore */
+        }
+      }
+      setTimeout(() => iframe.remove(), 1500);
+    };
+    iframe.srcdoc = html;
+    document.body.appendChild(iframe);
   }
 
   // Line rows per printed page. The header/meta repeats on every page, so this
-  // is the number of item rows that comfortably fit under it on an A4 sheet.
-  private static readonly ROWS_PER_PAGE = 18;
+  // is the number of item rows that comfortably fit under it on an A4 sheet
+  // (rows are compact so a page packs as many products as possible).
+  private static readonly ROWS_PER_PAGE = 24;
 
   private buildHtml(config: BillConfig): string {
     const showDiscountColumn = config.lines.some((line) => line.discount > 0);
@@ -96,7 +128,7 @@ export class BillPrintService {
           <td class="center">${startIndex + i + 1}</td>
           <td class="product">${this.escapeHtml(line.name)}</td>
           <td class="center">${this.escapeHtml(line.hsnCode)}</td>
-          <td class="right">${line.quantity}${line.unit ? ' ' + this.escapeHtml(line.unit) : ''}</td>
+          <td class="right">${line.meters && line.meters > 0 ? `${line.quantity} &times; ${line.meters} m` : `${line.quantity}${line.unit ? ' ' + this.escapeHtml(line.unit) : ''}`}</td>
           <td class="right">${this.formatCurrency(line.unitPrice)}</td>
           ${showDiscountColumn ? `<td class="right">${line.discount > 0 ? this.formatCurrency(line.discount) : ''}</td>` : ''}
           <td class="right">${this.formatCurrency(line.totalPrice)}</td>
@@ -488,9 +520,9 @@ export class BillPrintService {
       border-top: none;
       border-bottom: none;
       border-left: 1px solid #bbb;
-      padding: 4px 6px;
-      font-size: 11px;
-      line-height: 1.2;
+      padding: 3px 6px;
+      font-size: 10.5px;
+      line-height: 1.15;
       vertical-align: middle;
     }
 
@@ -512,7 +544,7 @@ export class BillPrintService {
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 8px 6px;
+      padding: 5px 6px;
       border: 1px solid #000000;
       border-bottom: 2px solid #000000;
     }
@@ -524,7 +556,7 @@ export class BillPrintService {
 
     .bill-table tbody tr:nth-child(even) { background: transparent; }
     .bill-table tbody tr:hover { background: transparent; }
-    .bill-table .empty-row td { height: 26px; padding: 7px 8px; }
+    .bill-table .empty-row td { height: 18px; padding: 3px 8px; }
     .bill-table .product { font-weight: 700; color: #000; }
 
     .bill-table tfoot .qty-total-row td {

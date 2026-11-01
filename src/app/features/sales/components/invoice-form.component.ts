@@ -20,6 +20,7 @@ import { GstService, NotificationService } from '../../../core';
 import {
   Product, BillPrintService, PaymentMode, InvoiceLineItem, SalesInvoice,
 } from '../../../shared';
+import { lineGross } from '../../../shared/utils/line-pricing';
 import { ProductService } from '../../inventory/services/product.service';
 
 interface InvoiceFormLine {
@@ -28,6 +29,7 @@ interface InvoiceFormLine {
   hsnCode: string;
   quantity: number;
   unit: string;       // e.g. Nos, Mtr, Kg
+  meters?: number;    // optional length in metres (per-metre pricing)
   unitPrice: number;  // paise
   gstRate: number;    // percent
   discount: number;   // paise
@@ -207,13 +209,31 @@ export class InvoiceFormComponent {
     this.recalculate();
   }
 
+  /** Edit the per-unit price (rupees) for a line; recalculates its total. */
+  updateUnitPrice(productId: string, rupees: number): void {
+    const unitPrice = Math.max(0, Math.round((rupees || 0) * 100));
+    this.lines.update((prev) =>
+      prev.map((l) => (l.productId === productId ? { ...l, unitPrice } : l))
+    );
+    this.recalculate();
+  }
+
+  /** Optional metres for length-based items; blank/0 reverts to piece pricing. */
+  updateMeters(productId: string, meters: number): void {
+    const m = meters && meters > 0 ? meters : undefined;
+    this.lines.update((prev) =>
+      prev.map((l) => (l.productId === productId ? { ...l, meters: m } : l))
+    );
+    this.recalculate();
+  }
+
   removeLine(productId: string): void {
     this.lines.update((prev) => prev.filter((l) => l.productId !== productId));
     this.recalculate();
   }
 
   lineTotal(line: InvoiceFormLine): number {
-    const taxable = Math.max(0, line.unitPrice * line.quantity - line.discount);
+    const taxable = Math.max(0, lineGross(line.unitPrice, line.quantity, line.meters) - line.discount);
     const tax = this.gstService.calculateTax(taxable, line.gstRate, '33');
     return taxable + tax.totalTax;
   }
@@ -241,7 +261,7 @@ export class InvoiceFormComponent {
     let cgst = 0;
     let sgst = 0;
     for (const l of this.lines()) {
-      const taxable = Math.max(0, l.unitPrice * l.quantity - l.discount);
+      const taxable = Math.max(0, lineGross(l.unitPrice, l.quantity, l.meters) - l.discount);
       const tax = this.gstService.calculateTax(taxable, l.gstRate, '33');
       sub += taxable;
       cgst += tax.cgst;
@@ -303,6 +323,7 @@ export class InvoiceFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitPrice: l.unitPrice,
         discount: l.discount,
         totalPrice: this.lineTotal(l),
@@ -345,6 +366,7 @@ export class InvoiceFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitPrice: l.unitRate,
         discount: l.discount,
         totalPrice: l.lineTotal,
@@ -361,7 +383,7 @@ export class InvoiceFormComponent {
 
   private buildPayload(): Omit<SalesInvoice, 'id' | 'invoiceNumber'> {
     const lines: InvoiceLineItem[] = this.lines().map((l) => {
-      const taxable = Math.max(0, l.unitPrice * l.quantity - l.discount);
+      const taxable = Math.max(0, lineGross(l.unitPrice, l.quantity, l.meters) - l.discount);
       const tax = this.gstService.calculateTax(taxable, l.gstRate, '33');
       return {
         productId: l.productId,
@@ -369,6 +391,7 @@ export class InvoiceFormComponent {
         hsnCode: l.hsnCode,
         quantity: l.quantity,
         unit: l.unit,
+        meters: l.meters,
         unitRate: l.unitPrice,
         discount: l.discount,
         gstRate: l.gstRate,
@@ -402,6 +425,7 @@ export class InvoiceFormComponent {
       hsnCode: l.hsnCode,
       quantity: l.quantity,
       unit: l.unit || 'Nos',
+      meters: l.meters && l.meters > 0 ? l.meters : undefined,
       unitPrice: l.unitRate,
       gstRate: l.gstRate,
       discount: l.discount,

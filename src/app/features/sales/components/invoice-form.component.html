@@ -144,6 +144,7 @@
             <th>Product</th>
             <th>HSN</th>
             <th>Qty</th>
+            <th>Meter</th>
             <th>Unit Price</th>
             <th>GST %</th>
             <th>Discount (₹)</th>
@@ -161,7 +162,16 @@
                 <input type="number" class="inline-input qty-input" min="1" [value]="line.quantity"
                        (change)="updateQuantity(line.productId, $any($event.target).valueAsNumber)">
               </td>
-              <td class="right">{{ line.unitPrice / 100 | currency:'INR':'symbol':'1.2-2':'en-IN' }}</td>
+              <td>
+                <input type="number" class="inline-input meter-input" min="0" step="0.5" placeholder="—"
+                       [value]="line.meters ?? ''"
+                       (change)="updateMeters(line.productId, $any($event.target).valueAsNumber)">
+              </td>
+              <td>
+                <input type="number" class="inline-input price-input" min="0" step="0.01"
+                       [value]="line.unitPrice / 100"
+                       (change)="updateUnitPrice(line.productId, $any($event.target).valueAsNumber)">
+              </td>
               <td>
                 <select class="inline-input" [value]="line.gstRate"
                         (change)="updateGstRate(line.productId, +$any($event.target).value)">
