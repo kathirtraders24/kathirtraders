@@ -11,6 +11,7 @@
 
   // Brand
   --kt-primary: #4f46e5;
+  --kt-table-cell: #000000f1;
   --kt-primary-strong: #4338ca;
   --kt-accent: #7c3aed;
   --kt-primary-light: #eef2ff;
@@ -51,6 +52,7 @@
   // Neon brand accents on a near-black stage
   --kt-primary: #8b93ff;
   --kt-primary-strong: #6366f1;
+  --kt-table-cell: #000000f1;
   --kt-accent: #a78bfa;
   --kt-neon: #22d3ee;
   --kt-primary-light: rgba(129, 140, 248, 0.14);
@@ -61,7 +63,7 @@
 
   // High-contrast, slightly cool text
   --kt-text-primary: #f3f4ff;
-  --kt-text-secondary: #b4b7d6;
+  --kt-text-secondary: #ffffff;
   --kt-text-muted: #7f83a8;
 
   // Deep charcoal/navy stage + smoked glass with neon edges
@@ -244,13 +246,13 @@ body::before {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: var(--kt-text-secondary);
+    color: var(--kt-table-cell);
     background: transparent;
     border-bottom: 1px solid var(--kt-border);
   }
 
   .mat-mdc-cell {
-    color: var(--kt-text-primary);
+    color: var(--kt-table-cell);
     border-bottom-color: var(--kt-border);
   }
 
@@ -363,8 +365,8 @@ body::before {
   .mat-mdc-card,
   .mat-mdc-card-content { color: var(--kt-text-primary); }
   .mat-mdc-card-subtitle { color: var(--kt-text-secondary); }
-  .mat-mdc-cell { color: var(--kt-text-primary) !important; }
-  .mat-mdc-header-cell { color: var(--kt-text-secondary) !important; }
+  .mat-mdc-cell { color: var(--kt-table-cell) !important; }
+  .mat-mdc-header-cell { color: var(--kt-table-cell) !important; }
   .mat-mdc-dialog-surface { background: var(--kt-bg-surface); }
   .mat-mdc-dialog-container {
     --mdc-dialog-subhead-color: var(--kt-text-primary);

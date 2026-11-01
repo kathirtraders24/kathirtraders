@@ -194,6 +194,11 @@
   white-space: nowrap;
 }
 
+.add-product-btn {
+  margin-bottom: 22px; // align with mat-form-field subscript spacer
+  white-space: nowrap;
+}
+
 // ---------- Table ----------
 .items-table {
   width: 100%;
